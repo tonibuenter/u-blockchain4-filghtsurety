@@ -1,0 +1,75 @@
+{
+	"providerUrl": "ws://localhost:8545",
+	"addresses": [
+		"0xbb86C2893eB509293b8C9C6De50d51C7C0807674",
+		"0x541D39a9f4666eF796283059c24FC784c57B321f",
+		"0x1437081c5bf6a5CB098246e193cF0f91ae42Ee8e",
+		"0x09eA2eC9f1f2125dCbF49FD9ea57323Fddf6792E",
+		"0xb504f188854A4d46592f45036D883340900925E8",
+		"0x4c4765278E12B4aA3Ed1D5F706e26AFD7fe0662d",
+		"0xf32a409ac3f3AbbE191c4F487c082F870ccc327A",
+		"0xd327140cb7cB843860412ac8B6889820E064E4E3",
+		"0x86FD74cD113AFDe019ff6218f11DCc14023E4cA0",
+		"0x14Fb87E8D8Bc588F4950290d458888D5d9A8c617"
+	],
+	"defaultAccount": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
+	"appAddress": "0x966dE2Ba7f7f49329AdF435B42CB9dc65ed4C2b3",
+	"dataAddress": "0x4EcFC946d38a3fB592517Fb770547886309Fe023",
+	"firstAirline": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
+	"airlines": [
+		{
+			"address": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
+			"name": "Swiss Air",
+			"flights": [
+				{
+					"flight": "SA-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0x7dabbc9213f6f140edf23d595ac4a05a606e3d71",
+			"name": "Lufthansa",
+			"flights": [
+				{
+					"flight": "LHA-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0x39086aef54ce15ed335742a159cf9e5a3d6f8f50",
+			"name": "Eurowings",
+			"flights": [
+				{
+					"flight": "EW-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0xee29a8eef2e4eefa5380273cb4d7ae3bf3500683",
+			"name": "TUI Reise",
+			"flights": [
+				{
+					"flight": "TUI-FA-B",
+					"timestamp": 123
+				}
+			]
+		}
+	],
+	"oracleAddresses": [
+		"0x354d07bde3431d7231aae1953ca2e8fbc0e48a13",
+		"0x42ddda8c8dcec8b825d174af14445fad3e78f6fa",
+		"0x9bc6b66f773ac56cb0f925d3546449161ea80efd"
+	],
+	"flightStatusCode": {
+		"STATUS_CODE_UNKNOWN": 0,
+		"STATUS_CODE_ON_TIME": 10,
+		"STATUS_CODE_LATE_AIRLINE": 20,
+		"STATUS_CODE_LATE_WEATHER": 30,
+		"STATUS_CODE_LATE_TECHNICAL": 40,
+		"STATUS_CODE_LATE_OTHER": 50
+	},
+	"migratedTimestamp": "Mon Jun 07 2021 16:14:21 GMT+0200 (Central European Summer Time)"
+}

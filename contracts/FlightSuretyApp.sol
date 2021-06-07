@@ -4,11 +4,12 @@ pragma solidity ^0.6.0;
 
 import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
 import "./FlightSuretyData.sol";
+import "./Utils.sol";
 
 /************************************************** */
 /* FlightSurety Smart Contract                      */
 /************************************************** */
-contract FlightSuretyApp {
+contract FlightSuretyApp is Utils {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
     /********************************************************************************************/
@@ -24,7 +25,12 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner;          // Account used to deploy contract
-    address private dataContract;
+    address payable private dataContract;
+
+    bool private operational = true;
+
+
+    FlightSuretyData private fsData;
 
     struct Flight {
         bool isRegistered;
@@ -51,7 +57,7 @@ contract FlightSuretyApp {
     modifier requireIsOperational()
     {
         // Modify to call data contract's status
-        require(FlightSuretyData(payable(dataContract)).isOperational(), "Contract is currently not operational");
+        require(operational, "CONTRACT_IS_CURRENTLY_NOT_OPERATIONAL");
         _;
         // All modifiers require an "_" which indicates where the function body will be added
     }
@@ -61,49 +67,66 @@ contract FlightSuretyApp {
     */
     modifier requireContractOwner()
     {
-        require(msg.sender == contractOwner, "Caller is not contract owner");
+        require(msg.sender == contractOwner, "CALLER_IS_NOT_CONTRACT_OWNER");
         _;
     }
+
+    modifier requireDataContract()
+    {
+        require(address(fsData) != address(0), 'NO_DATA_CONTRACT');
+        _;
+    }
+
+
 
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
 
-    /**
-    * @dev Contract constructor
-    *
-    */
-    constructor
-    (
-    )
-    public
+    constructor (address _dataContract) public
     {
+        dataContract = payable(_dataContract);
+        fsData = FlightSuretyData(payable(dataContract));
         contractOwner = msg.sender;
     }
 
 
+
+
+    /********************************************************************************************/
+    /*                                       UTILITY FUNCTIONS                                  */
+    /********************************************************************************************/
+
+
     function setDataContract
     (
-        address _dataContract
+        address payable _dataContract
     )
     external
     requireContractOwner
     {
         dataContract = _dataContract;
+        fsData = FlightSuretyData(payable(dataContract));
     }
 
-    /********************************************************************************************/
-    /*                                       UTILITY FUNCTIONS                                  */
-    /********************************************************************************************/
+
+
+
     // Modify to call data contract's status
     function isOperational()
     public
     view
     returns (bool)
     {
-        require(dataContract != address(0), 'No data Contract available');
-        return FlightSuretyData(payable(dataContract)).isOperational();
+        return operational;
+    }
 
+    function setOperational(bool _operational) public requireContractOwner {
+        operational = _operational;
+    }
+
+    function getDataContract() public view returns (address){
+        return dataContract;
     }
 
     /********************************************************************************************/
@@ -111,18 +134,75 @@ contract FlightSuretyApp {
     /********************************************************************************************/
 
 
-    /**
-     * @dev Add an airline to the registration queue
-     *
-     */
-    function registerAirline()
+    function registerAirline(address _airlineAddress, string memory _airlineName)
     external
-    view
+    payable
     requireIsOperational
-    returns (bool success, uint256 votes)
+    returns (bool success, uint votes)
     {
-        return (success, 0);
+        require(dataContract != address(0), 'NO_DATA_CONTRACT_DEFINED');
+
+        if (!fsData.registrationNeedsVoting() && fsData.numberOfAirlines() > 0) {
+            require(fsData.isRegistered(msg.sender), 'SENDER_NEEDS_TO_BE_REGISTERED_AIRLINE');
+        }
+        return fsData.registerAirline(_airlineAddress, _airlineName);
     }
+
+    function isRegistered(address _address) public view requireDataContract returns (bool)
+    {
+        return fsData.isRegistered(_address);
+    }
+
+    function registrationStatus(address _address)
+    public
+    view
+    requireDataContract
+    returns (uint)
+    {
+        return fsData.registrationStatus(_address);
+    }
+
+
+    function isAirline(address _address) public view requireDataContract returns (bool)
+    {
+        return fsData.isAirline(_address);
+    }
+
+    function voteOnAirline
+    (
+        address _candidateAddress,
+        address _voterAddress,
+        uint _vote
+    )
+    public requireDataContract
+    {
+        require(_voterAddress == msg.sender, 'ONLY_SENDER_CAN_VOTE');
+        fsData.voteOnAirline(_candidateAddress, _voterAddress, _vote);
+    }
+
+
+    function votingResultsByIndex(
+        uint _index
+    )
+    public
+    view
+    requireDataContract
+    returns (uint yes, uint no, uint open, uint voters)
+    {
+        return fsData.votingResultsByIndex(_index);
+    }
+
+
+    function votingResults(address _address)
+    public
+    view
+    requireDataContract
+    returns (uint yes, uint no, uint open, uint voters)
+    {
+        return fsData.votingResults(_address);
+    }
+
+
 
 
     /**
@@ -150,8 +230,10 @@ contract FlightSuretyApp {
         uint8 statusCode
     )
     internal
-    pure
     {
+        if (statusCode > 10) {
+            fsData.creditInsurees(airline, flight, timestamp);
+        }
     }
 
 
@@ -183,7 +265,7 @@ contract FlightSuretyApp {
     uint8 private nonce = 0;
 
     // Fee to be paid when registering oracle
-    uint256 public constant REGISTRATION_FEE = 1 ether;
+    uint256 public constant REGISTRATION_FEE = 0.0001 ether;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;
@@ -221,15 +303,15 @@ contract FlightSuretyApp {
     event OracleRequest(uint8 index, address airline, string flight, uint256 timestamp);
 
 
-    // Register an oracle with the contract
     function registerOracle
     (
     )
     external
     payable
     {
-        // Require registration fee
+        require(!isOracleRegistered(), "ORACLE_ALREADY_REGISTERED");
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
+        dataContract.transfer(REGISTRATION_FEE);
 
         uint8[3] memory indexes = generateIndexes(msg.sender);
 
@@ -239,18 +321,24 @@ contract FlightSuretyApp {
         });
     }
 
-    function getMyIndexes
-    (
-    )
+
+    function isOracleRegistered()
+    view
+    public
+    returns (bool)
+    {
+        return oracles[msg.sender].isRegistered;
+    }
+
+
+    function getMyIndexes()
     view
     external
     returns (uint8[3] memory)
     {
-        require(oracles[msg.sender].isRegistered, "Not registered as an oracle");
-
+        require(oracles[msg.sender].isRegistered, "Not_registered_as_an_oracle");
         return oracles[msg.sender].indexes;
     }
-
 
 
 
@@ -280,7 +368,7 @@ contract FlightSuretyApp {
         // oracles respond with the *** same *** information
         emit OracleReport(airline, flight, timestamp, statusCode);
         if (oracleResponses[key].responses[statusCode].length >= MIN_RESPONSES) {
-
+            oracleResponses[key].isOpen = false;
             emit FlightStatusInfo(airline, flight, timestamp, statusCode);
 
             // Handle flight status as appropriate
