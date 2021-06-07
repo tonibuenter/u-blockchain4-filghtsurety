@@ -12,13 +12,13 @@
 		"0x86FD74cD113AFDe019ff6218f11DCc14023E4cA0",
 		"0x14Fb87E8D8Bc588F4950290d458888D5d9A8c617"
 	],
-	"defaultAccount": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
-	"appAddress": "0x966dE2Ba7f7f49329AdF435B42CB9dc65ed4C2b3",
-	"dataAddress": "0x4EcFC946d38a3fB592517Fb770547886309Fe023",
-	"firstAirline": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
+	"defaultAccount": "0xe18b3d666c7f14740afe750a64c5ebd9ec0ae37f",
+	"appAddress": "0x00184BE4263Bbd73d57e2Cc1dcbb326Ec00f8452",
+	"dataAddress": "0xCcBF52850F311cf4De9230e384f7097010c8f6Ca",
+	"firstAirline": "0xe18b3d666c7f14740afe750a64c5ebd9ec0ae37f",
 	"airlines": [
 		{
-			"address": "0x44e47c8a23b674757a42f1dc596ec2ff731dcc7d",
+			"address": "0xe18b3d666c7f14740afe750a64c5ebd9ec0ae37f",
 			"name": "Swiss Air",
 			"flights": [
 				{
@@ -28,7 +28,7 @@
 			]
 		},
 		{
-			"address": "0x7dabbc9213f6f140edf23d595ac4a05a606e3d71",
+			"address": "0x560457d2ee45a0fd02563a4205c76ca503d057c6",
 			"name": "Lufthansa",
 			"flights": [
 				{
@@ -38,7 +38,7 @@
 			]
 		},
 		{
-			"address": "0x39086aef54ce15ed335742a159cf9e5a3d6f8f50",
+			"address": "0x12e0503c79ed18de0b79de0c0d91d941d93bab41",
 			"name": "Eurowings",
 			"flights": [
 				{
@@ -48,7 +48,7 @@
 			]
 		},
 		{
-			"address": "0xee29a8eef2e4eefa5380273cb4d7ae3bf3500683",
+			"address": "0x23c86128fb41f4f17da092f75cc836694bd46342",
 			"name": "TUI Reise",
 			"flights": [
 				{
@@ -59,9 +59,9 @@
 		}
 	],
 	"oracleAddresses": [
-		"0x354d07bde3431d7231aae1953ca2e8fbc0e48a13",
-		"0x42ddda8c8dcec8b825d174af14445fad3e78f6fa",
-		"0x9bc6b66f773ac56cb0f925d3546449161ea80efd"
+		"0x5d4d1050ba34d97ab133c2277b5fd069a663b127",
+		"0x9de87aaf9998c0edc39b1170321dbd1eebb820af",
+		"0x9144aafda8f731f572e75d44ddb24791722600dd"
 	],
 	"flightStatusCode": {
 		"STATUS_CODE_UNKNOWN": 0,
@@ -71,5 +71,5 @@
 		"STATUS_CODE_LATE_TECHNICAL": 40,
 		"STATUS_CODE_LATE_OTHER": 50
 	},
-	"migratedTimestamp": "Mon Jun 07 2021 16:14:21 GMT+0200 (Central European Summer Time)"
+	"migratedTimestamp": "Mon Jun 07 2021 18:24:47 GMT+0200 (Central European Summer Time)"
 }

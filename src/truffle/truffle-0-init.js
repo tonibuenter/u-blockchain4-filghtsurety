@@ -53,13 +53,12 @@ async function _main() {
       console.log('>>>level:', event.returnValues.level);
       console.log('>>>info:', event.returnValues.info);
     });
-    //
-    // deployedData.Console().on('once', (event) => {
-    //   console.log('>>>origin:', event.returnValues.origin);
-    //   console.log('>>>level:', event.returnValues.level);
-    //   console.log('>>>info:', event.returnValues.info);
-    // });
-    // await deployedApp.setDataContract(deployedData.address);
+    deployedData.Console().on('once', (event) => {
+      console.log('>>>origin:', event.returnValues.origin);
+      console.log('>>>level:', event.returnValues.level);
+      console.log('>>>info:', event.returnValues.info);
+    });
+    await deployedApp.setDataContract(deployedData.address);
     await deployedData.authorizeCaller(deployedApp.address);
     console.log('testData.defaultAccount    :', testData.defaultAccount);
     console.log('deployedApp.address        :', deployedApp.address);
@@ -71,9 +70,11 @@ async function _main() {
     await _registerAirline(testData.airlines[1]);
     await _registerAirline(testData.airlines[2]);
     await _registerAirline(testData.airlines[3]);
-    await _printAirlines();
+    await _voteOnAirline();
+
     return;
 
+    await _printAirlines();
     //
 
     await _registerAirline(testData.airlines[3]);
@@ -83,9 +84,6 @@ async function _main() {
     await _printAirlines();
     await _printContractDetails();
 
-    await _voteOnAirline();
-
-    await _voteOnAirline();
     //
 
     await _printAirlines();
@@ -121,8 +119,10 @@ async function _main() {
       console.log('isRegistered:', res);
       res = await catchReason(() => deployedApp.registrationStatus(airline.address));
       console.log('registrationStatus:', res);
-      res = await catchReason(() => deployedApp.votingResults(airline.address));
+      res = await catchReason(() => deployedData.votingResults(airline.address));
       console.log('votingResults:', res);
+      res = await catchReason(() => deployedData.getBallotSize(airline.address));
+      console.log('getBallotSize:', res);
     }
     console.log('*** _printAirlines -end- ***');
   }

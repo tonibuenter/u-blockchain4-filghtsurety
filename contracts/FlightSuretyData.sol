@@ -39,6 +39,7 @@ contract FlightSuretyData is Utils {
     struct Ballot {
         address voterAddress;
         string name;
+        uint index;
         // 0 not voted
         // 1 approve
         // 2 disapprove
@@ -47,7 +48,7 @@ contract FlightSuretyData is Utils {
 
     struct VotingBox {
         mapping(uint => Ballot) ballotList;
-        uint size;
+        uint ballotSize;
     }
 
     uint private consensusThreshold = 3;
@@ -90,7 +91,7 @@ contract FlightSuretyData is Utils {
     */
     modifier requireContractOwner()
     {
-        require(msg.sender == contractOwner || msg.sender == authorizedContract, "CALLER_IS_NOT_CONTRACT_OWNER");
+        // DEV require(msg.sender == contractOwner || msg.sender == authorizedContract, "CALLER_IS_NOT_CONTRACT_OWNER");
         _;
     }
 
@@ -129,6 +130,18 @@ contract FlightSuretyData is Utils {
         return contractOwner;
     }
 
+    function getBallotSize
+    (
+        address _address
+    )
+    view
+    public
+    returns (uint)
+    {
+        VotingBox storage votingBox = votingBoxMap[_address];
+        return votingBox.ballotSize;
+    }
+
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -157,33 +170,24 @@ contract FlightSuretyData is Utils {
         require(!isRegistered(_airlineAddress), 'AIRLINE_ALREADY_REGISTERED');
         votes = 0;
         success = false;
-        emit Console('register-0', uint(_airlineAddress), 'check if voting is needed');
         if (!registrationNeedsVoting()) {
             airlineData[_airlineAddress] = Airline(_airlineName, 2);
             success = true;
         } else {
             emit Console('register-1', uint(_airlineAddress), 'needs voting');
-            VotingBox storage votingBox;
-            votingBoxMap[_airlineAddress] = votingBox;
             uint counter = 0;
             for (uint i = 0; i < airlineIndex; i++) {
                 address voterAddress = airlineList[i];
                 Airline storage a = airlineData[voterAddress];
                 if (a.status == 2) {
-                    Ballot storage ballot;
-                    votingBox.ballotList[counter] = ballot;
-                    ballot.voterAddress = voterAddress;
-                    ballot.vote = 0;
-                    ballot.name = a.name;
-                    if (ballot.voterAddress == address(0)) {
-                        emit Console('register-2', 999, 'Address is null!!');
-                    } else {
-                        emit Console('register-2', 999, 'Address ok');
-                    }
+                    votingBoxMap[_airlineAddress].ballotList[counter].voterAddress = voterAddress;
+                    votingBoxMap[_airlineAddress].ballotList[counter].name = a.name;
+                    votingBoxMap[_airlineAddress].ballotList[counter].vote = 0;
+                    votingBoxMap[_airlineAddress].ballotList[counter].index = counter;
                     counter += 1;
                 }
             }
-            votingBox.size = counter;
+            votingBoxMap[_airlineAddress].ballotSize = counter;
             votes = counter;
             airlineData[_airlineAddress] = Airline(_airlineName, 1);
             success = true;
@@ -246,7 +250,7 @@ contract FlightSuretyData is Utils {
     )
     public
     view
-    returns (uint yes, uint no, uint open, uint voters)
+    returns (uint, uint, uint, uint)
     {
         require(_index < airlineIndex, 'WRONG_AIRLINE_INDEX');
         return votingResults(airlineList[_index]);
@@ -265,7 +269,7 @@ contract FlightSuretyData is Utils {
         yes = 0;
         no = 0;
         open = 0;
-        for (uint i = 0; i < votingBox.size; i++) {
+        for (uint i = 0; i < votingBox.ballotSize; i++) {
             Ballot storage ballot = votingBox.ballotList[i];
             if (ballot.vote == 0) {
                 open += 1;
@@ -277,7 +281,7 @@ contract FlightSuretyData is Utils {
                 no += 1;
             }
         }
-        voters = votingBox.size;
+        voters = votingBox.ballotSize;
         return (yes, no, open, voters);
     }
 
@@ -297,11 +301,11 @@ contract FlightSuretyData is Utils {
         Airline storage airline = airlineData[_candidateAddress];
         require(airline.status == 1, 'CANDIDATE_STATUS_NOT_1');
         VotingBox storage votingBox = votingBoxMap[_candidateAddress];
-        emit Console('voting-0', votingBox.size, 'start');
         uint i = 0;
         uint yeses = 0;
-        for (i = 0; i < votingBox.size; i++) {
+        for (i = 0; i < votingBox.ballotSize; i++) {
             Ballot storage ballot = votingBox.ballotList[i];
+            emit Console('voting-1', uint(ballot.voterAddress), 'voterAddress');
             if (ballot.voterAddress == _voterAddress) {
                 ballot.vote = _vote;
                 emit Console('voting-1', _vote, 'in vote');
@@ -310,7 +314,7 @@ contract FlightSuretyData is Utils {
                 yeses += 1;
             }
         }
-        if (yeses >= votingBox.size / 2) {
+        if (yeses >= (votingBox.ballotSize+1) / 2) {
             airline.status = 2;
             emit VotingEvent(_candidateAddress, airline.name, airline.status);
         }

@@ -177,7 +177,8 @@ contract FlightSuretyApp is Utils {
     public requireDataContract
     {
         require(_voterAddress == msg.sender, 'ONLY_SENDER_CAN_VOTE');
-        fsData.voteOnAirline(_candidateAddress, _voterAddress, _vote);
+
+        return fsData.voteOnAirline(_candidateAddress, _voterAddress, _vote);
     }
 
 
@@ -187,7 +188,7 @@ contract FlightSuretyApp is Utils {
     public
     view
     requireDataContract
-    returns (uint yes, uint no, uint open, uint voters)
+    returns (uint, uint, uint, uint)
     {
         return fsData.votingResultsByIndex(_index);
     }
@@ -197,7 +198,7 @@ contract FlightSuretyApp is Utils {
     public
     view
     requireDataContract
-    returns (uint yes, uint no, uint open, uint voters)
+    returns (uint, uint, uint, uint)
     {
         return fsData.votingResults(_address);
     }
