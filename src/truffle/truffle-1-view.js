@@ -1,6 +1,6 @@
 const contract = require('truffle-contract');
-const { catchReason, formatReceit } = require('./truffle-utils');
-const testData = require('../../config/testData.json');
+const { catchResult, formatReceit } = require('../truffle-utils');
+const testData = require('../../config/blockchainData.json');
 const Web3 = require('web3');
 
 const provider = new Web3.providers.WebsocketProvider(testData.providerUrl);
@@ -46,11 +46,11 @@ async function _main() {
       console.log('***', airline.name, '***');
       let res = await deployedApp.isRegistered(airline.address);
       console.log('isRegistered:', res);
-      res = await catchReason(() => deployedApp.registrationStatus(airline.address));
+      res = await catchResult(() => deployedApp.registrationStatus(airline.address));
       console.log('registrationStatus:', res);
-      res = await catchReason(() => deployedData.votingResults(airline.address));
+      res = await catchResult(() => deployedData.votingResults(airline.address));
       console.log('votingResults:', res);
-      res = await catchReason(() => deployedData.getBallotSize(airline.address));
+      res = await catchResult(() => deployedData.getBallotSize(airline.address));
       console.log('getBallotSize:', res);
     }
     console.log('*** _printAirlines -end- ***');

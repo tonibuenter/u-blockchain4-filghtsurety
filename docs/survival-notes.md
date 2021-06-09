@@ -23,11 +23,15 @@ truffle contract javascript API |https://www.trufflesuite.com/docs/truffle/refer
 
 Migrate and deploy on Ganache (with reset)
 
-`truffle migrate --reset`
+`
+truffle migrate --reset
+`
 
 Start test (with debug option)
 
-`truffle test --debug`
+`
+truffle test --debug
+`
 
 ## Deploy SupplyChain Contract to Rikeby
 
@@ -63,6 +67,12 @@ so address ~ uint160
 
 ```
 
-### ganache-cli --db ~/tmp/ganache-cli
+### ganache-cli with key file
 
-ganache-cli --acctKeys ~/_proj/misc/udacity/u-blockchain4-flightsurety/config/deployment8548.json
+
+
+```
+ganache-cli --acctKeys \
+    ~/_proj/misc/udacity/u-blockchain4-flightsurety/config/deployment8548.json
+
+```

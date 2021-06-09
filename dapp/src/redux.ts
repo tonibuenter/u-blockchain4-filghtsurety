@@ -59,6 +59,12 @@ function reducer0(state = initialState(), action: any) {
         flightSuretyData: action.payload
       };
     }
+    case 'set': {
+      return {
+        ...state,
+        ...action.payload
+      };
+    }
     default:
       return state;
   }

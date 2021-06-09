@@ -25,19 +25,18 @@ To use the dapp:
 
 To view dapp:
 
-`http://localhost:8000`
+`http://localhost:3000`
 
 ## Develop Server
 
 `npm run server`
 `truffle test ./test/oracles.js`
 
-## Deploy
 
-To build dapp for prod:
-`npm run dapp:prod`
+## Start Ganache-Cli
 
-Deploy the contents of the ./dapp folder
+`ganache-cli --acctKeys ./config/deployment8548.json`
+
 
 
 ## Resources

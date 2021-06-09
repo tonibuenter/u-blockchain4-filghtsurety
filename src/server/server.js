@@ -1,80 +1,89 @@
-const FlightSuretyApp = require('../../build/contracts/FlightSuretyApp.json');
-const testData = require('../../config/testData.json');
-const Web3 = require('web3');
+const contract = require('truffle-contract');
 const express = require('express');
 
-const web3 = new Web3();
-web3.eth.defaultAccount = testData.defaultAccount;
-web3.setProvider(new web3.providers.WebsocketProvider(testData.providerUrl));
+const { catchResult, formatReceit } = require('../truffle-utils');
+const bd = require('../../config/blockchainData.json');
+const Web3 = require('web3');
 
-const TEST_ORACLES_COUNT = 3;
+const provider = new Web3.providers.WebsocketProvider(bd.providerUrl);
+const fsAppJson = require('../../build/contracts/FlightSuretyApp.json');
+const fsDataJson = require('../../build/contracts/FlightSuretyData.json');
+
+const web3 = new Web3();
+web3.eth.defaultAccount = bd.defaultAccount;
+web3.setProvider(provider);
 
 const ORACLES = [];
 
-let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, testData.appAddress);
+_main();
 
-flightSuretyApp.events.OracleRequest(
-  {
-    fromBlock: 0
-  },
-  async function (error, event) {
-    if (error) {
-      console.log(error);
-      return;
-    }
-    console.log(event);
-    if (event.index) {
-      const list = ORACLES[event.index];
-      for (let acc of list) {
-        const randomStatus = Math.floor(Math.random() * 6) * 10;
-        await flightSuretyApp.methods
-          .submitOracleResponse(event.index, event.airline, event.flight, event.timestamp, randomStatus)
-          .sent();
-      }
-    }
-  }
-);
+async function _main() {
+  const faApp = contract(fsAppJson);
+  const faData = contract(fsDataJson);
+  let deployedApp, deployedData;
 
-flightSuretyApp.events.AppConsole(
-  {
-    fromBlock: 0
-  },
-  async function (error, event) {
-    if (error) {
-      console.log(error);
-      return;
-    }
-    console.log(event.returnValues.info);
-  }
-);
-
-// Oracle registration
-
-registerOracles();
-
-const app = express();
-app.get('/api', (req, res) => {
-  res.send({
-    message: 'An API for use with your Dapp!'
-  });
-});
-
-async function registerOracles() {
   try {
-    let fee = await flightSuretyApp.methods.REGISTRATION_FEE().call();
-    console.log('REGISTRATION_FEE:', fee);
-    // ACT
-    for (let address of testData.oracleAddresses) {
-      let receipt = await flightSuretyApp.methods.registerOracle().send({ from: address, value: fee, gas: 3000000 });
-      let reg = await flightSuretyApp.methods.isOracleRegistered().call();
-      let result = await flightSuretyApp.methods.getMyIndexes().call({ from: address });
-      console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
-      for (let i = 0; i < 3; i++) {
-        ORACLES[i] = ORACLES[i] || [];
-        ORACLES[i].push(address);
-      }
-    }
+    faApp.setProvider(provider);
+    faApp.defaults({ from: bd.defaultAccount });
+
+    faData.setProvider(provider);
+    faData.defaults({ from: bd.defaultAccount });
+
+    deployedApp = await faApp.deployed();
+    deployedData = await faData.deployed();
+
+    await register_oracles();
+    initExpress();
+
+    console.log('REGISTRATION_FEE  :', await deployedApp.REGISTRATION_FEE());
   } catch (e) {
-    console.error(e);
+    console.error('_main', e);
+  } finally {
+    console.log('_main DONE');
+  }
+
+  function initExpress() {
+    const expressApp = express();
+    expressApp.get('/api', (req, res) => {
+      res.send({
+        message: 'An API for use with your Dapp!'
+      });
+    });
+  }
+
+  async function register_oracles() {
+    if (deployedApp) {
+      try {
+        let fee = await deployedApp.REGISTRATION_FEE();
+        console.log('REGISTRATION_FEE:', fee.toString());
+        // ACT
+        for (let oracleAddress of bd.oracleAddresses) {
+          let result = await catchResult(() =>
+            deployedApp.registerOracle({
+              from: oracleAddress,
+              value: fee,
+              gas: 3000000
+            })
+          );
+          console.log('registerOracle:', result);
+
+          result = await deployedApp.isOracleRegistered({ from: oracleAddress });
+          console.log('isOracleRegistered:', result);
+
+          result = await deployedApp.getMyIndexes({ from: oracleAddress });
+          if (result) {
+            console.log(`getMyIndexes: ${result[0]}, ${result[1]}, ${result[2]}`);
+            for (let i = 0; i < 3; i++) {
+              ORACLES[i] = ORACLES[i] || [];
+              ORACLES[i].push({ oracleAddress, indexes: [result[0], result[1], result[2]] });
+            }
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      console.warn('deployedApp not available');
+    }
   }
 }

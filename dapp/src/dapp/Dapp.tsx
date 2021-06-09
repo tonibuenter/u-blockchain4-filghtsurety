@@ -13,6 +13,8 @@ import { ACTIONS, ReduxState } from '../redux';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Backdrop from '@material-ui/core/Backdrop';
+import Airlines from './Airlines';
+import Oracles from './Oracles';
 
 type DappMainProps = { data: number };
 
@@ -45,18 +47,22 @@ export default function Dapp({ data }: DappMainProps) {
       <TxBackdrop />
       <AppBar position="static">
         <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-          <Tab label="Oracle" {...a11yProps(1)} />
           <Tab label="Blockchain" {...a11yProps(0)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
+          <Tab label="Airlines" {...a11yProps(1)} />
+          <Tab label="Oracle" {...a11yProps(2)} />
+          <Tab label="Item Three" {...a11yProps(3)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
         <Blockchain />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <Airlines />
       </TabPanel>
       <TabPanel value={value} index={2}>
+        <Oracles />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
         Item Three
       </TabPanel>
     </Container>
@@ -76,7 +82,7 @@ function TxBackdrop() {
 
   const classes = useStyles();
   return (
-    <Backdrop className={classes.backdrop} open={tx}>
+    <Backdrop className={classes.backdrop + ' dapp'} open={tx}>
       <h2>Transaction in progress...</h2>
       <CircularProgress color="inherit" />
       <Button onClick={() => dispatch({ type: ACTIONS.TX_OFF })}>Force Close</Button>

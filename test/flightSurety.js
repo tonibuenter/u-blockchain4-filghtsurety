@@ -1,19 +1,24 @@
-const Test = require('../config/testConfig.js');
-const BigNumber = require('bignumber.js');
-const { expectEvent } = require('openzeppelin-test-helpers');
+const { initTest } = require('../config/testConfig.js');
+const { catchResult } = require('../src/truffle-utils');
 
-contract('Flight Surety Tests', async (accounts) => {
+contract('Flight Surety Tests', async (addresses) => {
   var config;
   var flightSuretyData;
   var flightSuretyApp;
   var firstAirline;
+  var secondAirline;
+  var airline3;
+  var airline4;
 
   before('setup contract', async () => {
-    config = await Test.Config(accounts);
+    config = await initTest(addresses);
 
     flightSuretyData = config.flightSuretyData;
     flightSuretyApp = config.flightSuretyApp;
-    firstAirline = config.firstAirline;
+    firstAirline = config.airlines[0];
+    secondAirline = config.airlines[1];
+    airline3 = config.airlines[2];
+    airline4 = config.airlines[3];
 
     console.log('flightSuretyData.address:', flightSuretyData.address);
     console.log('flightSuretyApp.address:', flightSuretyApp.address);
@@ -22,9 +27,9 @@ contract('Flight Surety Tests', async (accounts) => {
       await flightSuretyApp.setDataContract(flightSuretyData.address);
       await flightSuretyData.authorizeCaller(flightSuretyApp.address);
 
-      let res = await flightSuretyApp.isAirline(firstAirline);
+      let res = await flightSuretyApp.isAirline(firstAirline.address);
       console.log('flightSuretyApp.isAirline:', res);
-      res = await flightSuretyApp.registerAirline(firstAirline, 'First Airline');
+      res = await flightSuretyApp.registerAirline(firstAirline.address, firstAirline.name);
       console.log('flightSuretyApp.registerAirline; res.tx:', res.tx);
 
       console.log('flightSuretyApp:', flightSuretyApp.address);
@@ -52,7 +57,7 @@ contract('Flight Surety Tests', async (accounts) => {
   it(`T-02 (multiparty) can block access to setOperational() for non-Contract Owner account`, async function () {
     let accessDenied = false;
     try {
-      await flightSuretyApp.setOperational(false, { from: config.anyAddress });
+      await flightSuretyApp.setOperational(false, { from: config.addresses[5] });
     } catch (e) {
       accessDenied = true;
     }
@@ -75,7 +80,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
     let operational_on = true;
     try {
-      await flightSuretyApp.registerAirline(address(0), 'Test-Name');
+      await flightSuretyApp.registerAirline(address(0), 'Zero Airline');
     } catch (e) {
       operational_on = false;
     }
@@ -83,20 +88,15 @@ contract('Flight Surety Tests', async (accounts) => {
     await flightSuretyApp.setOperational(true);
   });
 
-  it('T-06 (airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
+  it('T-05 (airline) cannot register an Airline using registerAirline()', async () => {
     // ARRANGE
-    let secondAirline = config.secondAirline;
 
     // ACT
-    try {
-      await flightSuretyApp.registerAirline(secondAirline, 'Lufthansa', {
-        from: config.firstAirline,
-        value: 1
-      });
-    } catch (e) {
-      console.warn(e.message);
-    }
-    let result = await flightSuretyApp.isAirline.call(secondAirline);
+
+    let result = await catchResult(() => flightSuretyApp.registerAirline(secondAirline.address, secondAirline.name));
+    console.log('Result: ', result);
+
+    result = await flightSuretyApp.isAirline(secondAirline.address);
 
     // ASSERT
     assert.equal(result, true, "Airline should not be able to register another airline if it hasn't provided funding");
@@ -107,7 +107,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
     let res = true;
     try {
-      res = await flightSuretyApp.isRegistered(config.secondAirline);
+      res = await flightSuretyApp.isRegistered(secondAirline.address);
     } catch (e) {
       console.log(e.message);
       res = false;
@@ -120,11 +120,11 @@ contract('Flight Surety Tests', async (accounts) => {
 
     // ACT
     try {
-      await flightSuretyApp.registerAirline(config.airline3, 'Airline3', { from: config.firstAirline });
-      await flightSuretyApp.registerAirline(config.airline4, 'Airline4', { from: config.airline3 });
+      await flightSuretyApp.registerAirline(airline3.address, airline3.name, { from: firstAirline.address });
+      await flightSuretyApp.registerAirline(airline4.address, airline4.name, { from: airline3.address });
       await dumpAirlines(flightSuretyData);
     } catch (e) {}
-    let result = await flightSuretyData.isAirline.call(config.airline4);
+    let result = await flightSuretyData.isAirline(airline4.address);
 
     // ASSERT
     assert.equal(result, true, "Airline should not be able to register another airline if it hasn't provided funding");
@@ -168,17 +168,16 @@ contract('Flight Surety Tests', async (accounts) => {
     // ACT
 
     await dumpAirlines(flightSuretyData);
-    let receipt = await flightSuretyApp.voteOnAirline(config.airline4, 1, { from: config.airline3 });
-    // await expectEvent.inTransaction(receipt.tx, flightSuretyData, 'ConsoleEvent', { message: 'A' });
+    let result = await catchResult(() => flightSuretyApp.voteOnAirline(airline4.address, firstAirline.address, 1));
+    console.log('result:', result);
 
-    const Web3 = require('web3');
-    const web3 = new Web3();
-    web3.setProvider(new web3.providers.HttpProvider('http://localhost:7545'));
-    const receipt2 = await web3.eth.getTransactionReceipt(receipt.tx);
+    result = await catchResult(() =>
+      flightSuretyApp.voteOnAirline(airline4.address, secondAirline.address, 1, { from: secondAirline.address })
+    );
+    console.log('result:', result);
 
-    processReceipt(receipt);
-    let airline4 = await flightSuretyData.getAirline(3);
-    assert.equal(2, airline4.status, 'Airline4 is not on status 2');
+    let res = await flightSuretyData.getAirlineByIndex(3);
+    assert.equal('2', res.airlineStatus.toString(), 'Airline4 is not on status 2');
     await dumpAirlines(flightSuretyData);
   });
 });
@@ -187,7 +186,7 @@ async function dumpAirlines(flightSuretyData) {
   let nrOfAirlines = await flightSuretyData.numberOfAirlines();
   for (let i = 0; i < nrOfAirlines; i++) {
     try {
-      let airline = await flightSuretyData.getAirline(i);
+      let airline = await flightSuretyData.getAirlineByIndex(i);
       let voteApproval = await flightSuretyData.getVotingResults(i);
       console.log('***');
       console.log(i, ' Airline name:', airline.name);
@@ -202,12 +201,5 @@ async function dumpAirlines(flightSuretyData) {
     } catch (e) {
       console.error(e.message);
     }
-  }
-}
-
-function processReceipt(receipt) {
-  const { logs } = receipt;
-  for (let log of logs) {
-    console.info('event:', log.event);
   }
 }

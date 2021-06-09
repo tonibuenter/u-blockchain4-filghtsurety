@@ -1,0 +1,77 @@
+{
+	"providerUrl": "ws://localhost:8545",
+	"addresses": [
+		"0xbf9de66626767084a2b53e35ffd10a02e6c5b61a",
+		"0x694fe91252b76f8b310518d4aad50c6bc386acf1",
+		"0x967da0fcd591415546f4f702b4d5110c3d075ad8",
+		"0x3aeb84603db92915e16cb2c3699d50e60097fa74",
+		"0x74909e5f7c9201a1c50d7c0daa7683d532b30ff4",
+		"0x68d1b390aeab1a55b1786b0664c914e996d72175",
+		"0x7d99c445dc5ebda5c53715dd1a13559ec3dd7971",
+		"0xeb12b8fb6575a37419ad2da6d695fc338ebccbfc",
+		"0x7b6a4bc239462fd05d954d1ddc1376f3ee01861b",
+		"0x36b058997dde9c8a7c627d19f8eef2bdb35fc90a"
+	],
+	"defaultAccount": "0xbf9de66626767084a2b53e35ffd10a02e6c5b61a",
+	"appAddress": "...",
+	"dataAddress": "..",
+	"firstAirline": 0,
+	"airlines": [
+		{
+			"address": "0xbf9de66626767084a2b53e35ffd10a02e6c5b61a",
+			"name": "Swiss Air",
+			"flights": [
+				{
+					"flight": "SA-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0x694fe91252b76f8b310518d4aad50c6bc386acf1",
+			"name": "Lufthansa",
+			"flights": [
+				{
+					"flight": "LHA-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0x967da0fcd591415546f4f702b4d5110c3d075ad8",
+			"name": "Eurowings",
+			"flights": [
+				{
+					"flight": "EW-FA-B",
+					"timestamp": 123
+				}
+			]
+		},
+		{
+			"address": "0x3aeb84603db92915e16cb2c3699d50e60097fa74",
+			"name": "TUI Reise",
+			"flights": [
+				{
+					"flight": "TUI-FA-B",
+					"timestamp": 123
+				}
+			]
+		}
+	],
+	"oracleAddresses": [
+		"0x68d1b390aeab1a55b1786b0664c914e996d72175",
+		"0x7d99c445dc5ebda5c53715dd1a13559ec3dd7971",
+		"0xeb12b8fb6575a37419ad2da6d695fc338ebccbfc"
+	],
+	"flightStatusCode": {
+		"STATUS_CODE_UNKNOWN": 0,
+		"STATUS_CODE_ON_TIME": 10,
+		"STATUS_CODE_LATE_AIRLINE": 20,
+		"STATUS_CODE_LATE_WEATHER": 30,
+		"STATUS_CODE_LATE_TECHNICAL": 40,
+		"STATUS_CODE_LATE_OTHER": 50
+	},
+	"migratedTimestamp": "Wed Jun 09 2021 09:23:23 GMT+0200 (Central European Summer Time)",
+	"flightSuretyApp_address": "0xcC8b604d2Aa496C753EbB8c4841eD16E0A5421c5",
+	"flightSuretyData_address": "0x456f65951A57a4614DD370C26860c8E29C6AAff2"
+}

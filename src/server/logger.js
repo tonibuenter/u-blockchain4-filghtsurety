@@ -1,5 +1,5 @@
 const FlightSuretyApp = require('../../build/contracts/FlightSuretyApp.json');
-const testData = require('../../config/testData.json');
+const testData = require('../../config/blockchainData.json');
 const Web3 = require('web3');
 const express = require('express');
 

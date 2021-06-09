@@ -1,2 +1,2 @@
-cp -p ./build/contracts/* ./react1/src/dapp/contracts/
-cp -p ./config/testData.json ./react1/src/dapp/config/testData.json
+cp -p ./build/contracts/* ./dapp/src/dapp/contracts/
+cp -p ./config/blockchainData.json ./dapp/src/dapp/config/blockchainData.json

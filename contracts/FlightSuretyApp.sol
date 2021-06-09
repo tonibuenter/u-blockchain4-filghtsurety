@@ -266,7 +266,7 @@ contract FlightSuretyApp is Utils {
     uint8 private nonce = 0;
 
     // Fee to be paid when registering oracle
-    uint256 public constant REGISTRATION_FEE = 0.0001 ether;
+    uint256 public constant REGISTRATION_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;
@@ -311,7 +311,7 @@ contract FlightSuretyApp is Utils {
     payable
     {
         require(!isOracleRegistered(), "ORACLE_ALREADY_REGISTERED");
-        require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
+        require(msg.value >= REGISTRATION_FEE, "REGISTRATION_FEE IS_REQUIRED");
         dataContract.transfer(REGISTRATION_FEE);
 
         uint8[3] memory indexes = generateIndexes(msg.sender);

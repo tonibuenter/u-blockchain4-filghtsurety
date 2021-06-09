@@ -232,16 +232,34 @@ contract FlightSuretyData is Utils {
     }
 
 
-    function getAirline(
+    function getAirlineByIndex(
         uint index
     )
     public
     view
-    returns (string memory name, uint status)
+    returns (address airlineAddress, string memory airlineName, uint airlineStatus)
     {
-        require(index < airlineIndex, 'Wrong_Index');
-        Airline memory a = airlineData[airlineList[index]];
-        return (a.name, a.status);
+        require(index < airlineIndex, 'WRONG_INDEX');
+        airlineAddress  = airlineList[index];
+        Airline storage a = airlineData[airlineAddress];
+        airlineName = a.name;
+        airlineStatus = a.status;
+        return (airlineAddress, airlineName, airlineStatus);
+    }
+
+
+    function getAirlineByAddress(
+        address _address
+    )
+    public
+    view
+    returns (string memory airlineName, uint airlineStatus)
+    {
+        Airline storage airline = airlineData[_address];
+        require(airline.status == 0, 'WRONG_ADDRESS');
+        airlineName = airline.name;
+        airlineStatus = airline.status;
+        return (airlineName, airlineStatus);
     }
 
 
@@ -314,7 +332,7 @@ contract FlightSuretyData is Utils {
                 yeses += 1;
             }
         }
-        if (yeses >= (votingBox.ballotSize+1) / 2) {
+        if (yeses >= (votingBox.ballotSize + 1) / 2) {
             airline.status = 2;
             emit VotingEvent(_candidateAddress, airline.name, airline.status);
         }

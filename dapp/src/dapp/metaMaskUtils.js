@@ -1,9 +1,5 @@
 import { errorLog, successLog } from './utis';
 import Web3 from 'web3';
-import $ from 'jquery';
-import TruffleContract from 'truffle-contract';
-import flightSuretyAppJson from './contracts/FlightSuretyApp.json';
-import flightSuretyDataJson from './contracts/FlightSuretyData.json';
 
 export async function initWeb3() {
   /// Find or Inject Web3 Provider

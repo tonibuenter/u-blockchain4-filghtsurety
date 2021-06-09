@@ -11,8 +11,7 @@
     "test0": "truffle test ./test/flightSurety.js",
     "test": "truffle test --debug ./test/flightSurety.js",
     "test-flightSurety": "truffle test --debug test/flightSurety.js",
-    "xxdapp": "webpack-dev-server --mode development --config webpack.config.dapp.js",
-    "dapp": "cd ./react1 && npm start",
+    "dapp": "./prepare-dapp.sh && cd ./dapp && npm start",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
     "server": "cd src/server/ && node src/server/server.js"
   },
@@ -44,6 +43,7 @@
     "css-loader": "^5.2.4",
     "express": "^4.17.1",
     "file-loader": "^6.2.0",
+    "find-process": "^1.4.4",
     "ganache-cli": "^6.12.2",
     "html-loader": "^2.1.2",
     "html-webpack-plugin": "^5.3.1",
