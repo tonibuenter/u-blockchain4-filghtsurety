@@ -240,7 +240,7 @@ contract FlightSuretyData is Utils {
     returns (address airlineAddress, string memory airlineName, uint airlineStatus)
     {
         require(index < airlineIndex, 'WRONG_INDEX');
-        airlineAddress  = airlineList[index];
+        airlineAddress = airlineList[index];
         Airline storage a = airlineData[airlineAddress];
         airlineName = a.name;
         airlineStatus = a.status;
@@ -338,10 +338,6 @@ contract FlightSuretyData is Utils {
         }
     }
 
-    //    ***
-    //    INSURANCE SECTION
-    //    ***
-
     uint paybackRatioPercentage = 150;
 
     struct FlightData {
@@ -359,12 +355,57 @@ contract FlightSuretyData is Utils {
     bytes32[] flightKeys;
 
 
-    /**
-     * @dev Buy insurance for a flight
-     *
-     */
-    function buyInsurance
+    //
+    // FLIGHT
+    //
+
+    function registerFlight
     (
+        address _airline, string memory _flight, uint256 _timestamp
+    )
+    external
+    requireAuthorizedCaller
+    {
+        bytes32 flightKey = getFlightKey(_airline, _flight, _timestamp);
+        require(flightData[flightKey].airline == address(0), 'FLIGHT_ALREADY_REGISTERED');
+        flightData[flightKey].airline = _airline;
+        flightData[flightKey].timestamp = _timestamp;
+        flightData[flightKey].flight = _flight;
+    }
+
+    function isFlightRegistered
+    (
+        address _airline, string memory _flight, uint256 _timestamp
+    )
+    public
+    view
+    returns (bool)
+    {
+        bytes32 flightKey = getFlightKey(_airline, _flight, _timestamp);
+        return flightData[flightKey].airline != address(0);
+    }
+
+
+    //
+    // INSURANCE
+    //
+
+    function isInsured
+    (
+        address airline,
+        string memory flight,
+        uint256 timestamp,
+        address insuree
+    )
+    public
+    view
+    returns (bool)
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        return flightData[flightKey].insurances[insuree] != 0;
+    }
+
+    function registerInsurance(
         address airline,
         string memory flight,
         uint256 timestamp,
@@ -373,20 +414,12 @@ contract FlightSuretyData is Utils {
     )
     external
     requireAuthorizedCaller
-    payable
     {
-
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        require(amount > 0, 'Amount_needs_to_be_greater_than_0');
-        require(amount > 0, 'Amount_needs_to_be_greater_than_0');
-        require(flightData[flightKey].airline != address(0), 'Flight_does_no_exist');
-        require(flightData[flightKey].insurances[insuree] == 0, 'Insuree_already_exists');
-
-
-        address(this).transfer(amount);
+        require(flightData[flightKey].airline != address(0), 'FLIGHT_DOES_NO_EXIST');
         flightData[flightKey].insurances[insuree] = amount;
-
     }
+
 
     /**
      *  @dev Credits payouts to insurees
@@ -423,9 +456,9 @@ contract FlightSuretyData is Utils {
     {
 
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        require(flightData[flightKey].airline != address(0), 'Flight_does_no_exist');
-        require(flightData[flightKey].insurances[insuree] > 0, 'Insuree_does_no_exist_or_payout_done');
-        require(flightData[flightKey].status != 2, 'No_payout');
+        require(flightData[flightKey].airline != address(0), 'FLIGHT_DOES_NO_EXIST');
+        require(flightData[flightKey].insurances[insuree] > 0, 'INSUREE_DOES_NO_EXIST_OR_PAYOUT_DONE');
+        require(flightData[flightKey].status != 2, 'NO_PAYOUT');
         insuree.transfer(flightData[flightKey].insurances[insuree]);
     }
 

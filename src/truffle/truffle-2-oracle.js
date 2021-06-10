@@ -1,39 +1,16 @@
 const contract = require('truffle-contract');
 const { catchResult, formatReceit } = require('../truffle-utils');
-const testData = require('../../config/blockchainData.json');
+const { initBlockchainData, initOracleRequest } = require('./common');
+
 const Web3 = require('web3');
 
 const provider = new Web3.providers.WebsocketProvider(testData.providerUrl);
 const fsAppJson = require('../../build/contracts/FlightSuretyApp.json');
 const fsDataJson = require('../../build/contracts/FlightSuretyData.json');
 
-const AIRLINE_ALREADY_REGISTERED = 'AIRLINE_ALREADY_REGISTERED';
+asyncRun();
 
-const assert = require('chai');
-
-const web3 = new Web3();
-web3.eth.defaultAccount = testData.defaultAccount;
-web3.setProvider(provider);
-
-_main();
-
-async function _run0() {
-  const faApp = contract(fsAppJson);
-
-  try {
-    faApp.setProvider(provider);
-    let instance0 = await faApp.new({ from: testData.defaultAccount });
-    console.log('instance0.address:', instance0.address);
-    let instance1 = await faApp.new({ from: testData.defaultAccount });
-    console.log('instance1.address:', instance1.address);
-  } catch (e) {
-    console.error('_run0', e);
-  } finally {
-    console.log('_run0 DONE');
-  }
-}
-
-async function _main() {
+async function asyncRun() {
   const faApp = contract(fsAppJson);
   const faData = contract(fsDataJson);
   let deployedApp, deployedData;
@@ -83,9 +60,9 @@ async function _main() {
 
     await _printAirlines();
   } catch (e) {
-    console.error('_main', e);
+    console.error('asyncRun', e);
   } finally {
-    console.log('_main DONE');
+    console.log('asyncRun DONE');
   }
 
   async function _printContractDetails() {

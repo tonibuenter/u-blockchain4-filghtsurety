@@ -130,7 +130,7 @@ contract FlightSuretyApp is Utils {
     }
 
     /********************************************************************************************/
-    /*                                     SMART CONTRACT FUNCTIONS                             */
+    /*                                     AIRLINE                             */
     /********************************************************************************************/
 
 
@@ -204,25 +204,32 @@ contract FlightSuretyApp is Utils {
     }
 
 
-
-
-    /**
-     * @dev Register a future flight for insuring.
-     *
-     */
+    //
+    // FLIGHT
+    //
     function registerFlight
     (
+        string memory flight,
+        uint256 timestamp
     )
     external
-    pure
     {
-
+        fsData.registerFlight(msg.sender, flight, timestamp);
     }
 
-    /**
-     * @dev Called after oracle has updated flight status
-     *
-     */
+
+    function isFlightRegistered
+    (
+        address _airline, string memory _flight, uint256 _timestamp
+    )
+    public
+    view
+    returns (bool)
+    {
+        return fsData.isFlightRegistered(_airline, _flight, _timestamp);
+    }
+
+
     function processFlightStatus
     (
         address airline,
@@ -258,6 +265,34 @@ contract FlightSuretyApp is Utils {
 
         emit OracleRequest(index, airline, flight, timestamp);
     }
+
+
+    // INSURANCE
+
+    function buyInsurance
+    (
+        address airline,
+        string memory flight,
+        uint256 timestamp
+    )
+    external
+    payable
+    {
+        require(!fsData.isInsured(airline, flight, timestamp, msg.sender), 'INSUREE_ALREADY_EXISTS');
+        dataContract.transfer(msg.value);
+        fsData.registerInsurance(airline, flight, timestamp, msg.sender, msg.value);
+    }
+
+
+    function sendToDataContract
+    (
+    )
+    external
+    payable
+    {
+        dataContract.transfer(msg.value);
+    }
+
 
 
     // region ORACLE MANAGEMENT

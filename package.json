@@ -13,7 +13,7 @@
     "test-flightSurety": "truffle test --debug test/flightSurety.js",
     "dapp": "./prepare-dapp.sh && cd ./dapp && npm start",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
-    "server": "cd src/server/ && node src/server/server.js"
+    "server": "cd src/server/ && node src/server.js"
   },
   "author": "Toni A. Buenter",
   "devDependencies": {

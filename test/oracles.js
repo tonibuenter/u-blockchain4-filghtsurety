@@ -1,5 +1,5 @@
-var Test = require('../config/testConfig.js');
-//var BigNumber = require('bignumber.js');
+const { initTest } = require('../config/testConfig.js');
+const { catchResult } = require('../src/truffle-utils');
 
 contract('Oracles', async (accounts) => {
   const TEST_ORACLES_COUNT = 3;

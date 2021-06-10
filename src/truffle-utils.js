@@ -1,3 +1,5 @@
+module.exports = { catchResult, formatReceit };
+
 async function catchResult(bfun, mode) {
   try {
     let res = await bfun();
@@ -30,21 +32,6 @@ async function formatReceit(receipt, mode) {
     return e.reason || e.message || 'FAILED';
   }
 }
-
-function initConsoleEvents(deployedContract) {
-  deployedContract.Console().on('data', (event) => {
-    console.log('>>>origin:', event.returnValues.origin);
-    console.log('>>>level:', event.returnValues.level);
-    console.log('>>>info:', event.returnValues.info);
-  });
-  deployedContract.Console().on('once', (event) => {
-    console.log('>>>origin:', event.returnValues.origin);
-    console.log('>>>level:', event.returnValues.level);
-    console.log('>>>info:', event.returnValues.info);
-  });
-}
-
-module.exports = { catchResult, formatReceit, initConsoleEvents };
 
 async function _run0() {
   const faApp = contract(fsAppJson);
