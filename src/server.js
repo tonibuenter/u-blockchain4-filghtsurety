@@ -64,8 +64,28 @@ async function asyncRun() {
       }
     }
 
-    initOracleRequest(flightSuretyApp, (event) => {
-      console.log('>>>', event.returnValues.flight);
+    initOracleRequest(flightSuretyApp, async (event) => {
+      let flightStatusCode = bd.flightStatusCode;
+      let index = event.returnValues.index;
+      let flight = event.returnValues.flight;
+      let timestamp = event.returnValues.timestamp.toNumber();
+      for (let oracle of ORACLES) {
+        if (oracle.indexes.includes(index)) {
+          let statusCode = randomCode(flightStatusCode);
+          let res = await catchResult(() =>
+            flightSuretyApp.submitOracleResponse(index, airline, flight, timestamp, statusCode, {
+              from: oracle.oracleAddress
+            })
+          );
+          console.log('submitOracleResponse:', res);
+        }
+      }
     });
+
+    function randomCode(flightStatusCodes) {
+      let keys = Object.keys(flightStatusCodes);
+      let randomIndex = Math.floor(Math.random() + keys.length);
+      return flightStatusCodes[randomIndex];
+    }
   }
 }

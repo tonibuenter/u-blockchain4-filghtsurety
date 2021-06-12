@@ -15,6 +15,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@material-ui/core/Backdrop';
 import Airlines from './Airlines';
 import Oracles from './Oracles';
+import BuyInsurance from './BuyInsurance';
 
 type DappMainProps = { data: number };
 
@@ -49,8 +50,9 @@ export default function Dapp({ data }: DappMainProps) {
         <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
           <Tab label="Blockchain" {...a11yProps(0)} />
           <Tab label="Airlines" {...a11yProps(1)} />
-          <Tab label="Oracle" {...a11yProps(2)} />
-          <Tab label="Item Three" {...a11yProps(3)} />
+          <Tab label="Buy Insurance" {...a11yProps(2)} />
+          <Tab label="Oracle" {...a11yProps(3)} />
+          <Tab label="Item Three" {...a11yProps(4)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
@@ -60,10 +62,13 @@ export default function Dapp({ data }: DappMainProps) {
         <Airlines />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Oracles />
+        <BuyInsurance />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        Item Three
+        <Oracles />
+      </TabPanel>
+      <TabPanel value={value} index={4}>
+        Item 4444
       </TabPanel>
     </Container>
   );

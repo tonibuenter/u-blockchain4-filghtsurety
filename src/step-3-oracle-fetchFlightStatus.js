@@ -18,8 +18,10 @@ async function async_run() {
     console.log('fetchFlightStatus:', res);
 
     // await _printAirlines();
+    process.exit(0);
   } catch (e) {
     console.error('async_run', e);
+    process.exit(1);
   } finally {
     console.log('async_run DONE');
   }

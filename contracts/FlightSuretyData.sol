@@ -15,7 +15,7 @@ contract FlightSuretyData is Utils {
     address private contractOwner;                                      // Account used to deploy contract
     address private authorizedContract;
 
-    uint private MINIMAL_FUND = 10;
+    uint private MINIMAL_FUND = 0.001 ether;
 
     // Blocks all state changes throughout the contract if false
 
@@ -371,6 +371,34 @@ contract FlightSuretyData is Utils {
         flightData[flightKey].airline = _airline;
         flightData[flightKey].timestamp = _timestamp;
         flightData[flightKey].flight = _flight;
+        flightKeys.push(flightKey);
+    }
+
+
+    function getNumberOfFlights
+    (
+
+    )
+    public
+    view
+    returns (uint)
+    {
+        return flightKeys.length;
+    }
+
+
+    function getFlightByIndex
+    (
+        uint index
+    )
+    public
+    view
+    returns (address airline, string memory flight, uint timestamp)
+    {
+        airline = flightData[flightKeys[index]].airline;
+        flight = flightData[flightKeys[index]].flight;
+        timestamp = flightData[flightKeys[index]].timestamp;
+        return (airline, flight, timestamp);
     }
 
     function isFlightRegistered

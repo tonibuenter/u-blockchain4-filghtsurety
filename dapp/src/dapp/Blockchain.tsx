@@ -5,10 +5,21 @@ import { ACTIONS, ReduxState } from '../redux';
 import { getMetaskAccountID, initWeb3 } from './metaMaskUtils';
 import flightSuretyAppJson from './contracts/FlightSuretyApp.json';
 import flightSuretyDataJson from './contracts/FlightSuretyData.json';
-import { errorLog } from './utis';
-import { Button } from '@material-ui/core';
+import { errorLog, addressFormatter } from './utis';
+import {
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Divider
+} from '@material-ui/core';
 import bd from './config/blockchainData.json';
 import './Dapp.css';
+
 const contract = require('@truffle/contract');
 
 type Address = { address: string; name: string; eth: string };
@@ -17,6 +28,7 @@ export default function Blockchain() {
   const metaMask = useSelector((state: ReduxState) => state.metaMask);
   const flightSuretyData = useSelector((state: ReduxState) => state.flightSuretyData);
   const flightSuretyApp = useSelector((state: ReduxState) => state.flightSuretyApp);
+  const airlineMap = useSelector((state: ReduxState) => state.airlineMap);
   const dispatch = useDispatch();
   const web3 = useSelector((state: any) => state.web3);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -61,16 +73,16 @@ export default function Blockchain() {
   useEffect(() => {
     const _run = async () => {
       let _addresses: Address[] = [];
+      _addresses.push({ name: 'metamask', address: metaMask ? metaMask.address : '', eth: '0' });
 
-      _addresses.push({ name: 'metamask', address: metaMask ? metaMask.address : '...', eth: '0' });
       _addresses.push({
         name: 'flightSuretyApp',
-        address: flightSuretyApp ? flightSuretyApp.address : '...',
+        address: flightSuretyApp ? flightSuretyApp.address : '',
         eth: '0'
       });
       _addresses.push({
         name: 'flightSuretyData',
-        address: flightSuretyData ? flightSuretyData.address : '...',
+        address: flightSuretyData ? flightSuretyData.address : '',
         eth: '0'
       });
       bd.addresses.map((address, i) => {
@@ -79,7 +91,7 @@ export default function Blockchain() {
       try {
         dispatch({ type: ACTIONS.TX_ON });
         for (let entry of _addresses) {
-          entry.eth = web3.utils.fromWei(await web3.eth.getBalance(entry.address), 'ether');
+          entry.eth = entry.address ? web3.utils.fromWei(await web3.eth.getBalance(entry.address), 'ether') : '-';
         }
       } catch (e) {
         console.error(e);
@@ -95,59 +107,37 @@ export default function Blockchain() {
 
   return (
     <Container>
-      <h2>Contracts</h2>
-
-      <div>Network</div>
-      <div>{metaMask.network}</div>
-      <div>FLIGHT_SURETY_APP</div>
-      <div>{flightSuretyApp ? flightSuretyApp.address : 'Contract flightSuretyApp not available'}</div>
-      <div>FLIGHT_SURETY_DATA</div>
-      <div>{flightSuretyData ? flightSuretyData.address : 'Contract flightSuretyData not available'}</div>
-
-      <div>
-        {/*<Button*/}
-        {/*  variant="contained"*/}
-        {/*  color="primary"*/}
-        {/*  onClick={async () => {*/}
-        {/*    try {*/}
-        {/*      dispatch({ type: ACTIONS.TX_ON });*/}
-        {/*      let b;*/}
-        {/*      console.log('def account balance:', (b = await web3.eth.getBalance(bd.addresses[5])));*/}
-        {/*      let fromAddress = bd.addresses[5];*/}
-        {/*      let toAddress = bd.addresses[1];*/}
-        {/*      debugger;*/}
-        {/*      await web3.eth.sendTransaction({*/}
-        {/*        to: toAddress,*/}
-        {/*        from: fromAddress,*/}
-        {/*        value: web3.utils.toWei('0.5', 'ether')*/}
-        {/*      });*/}
-        {/*      setRefresh((i) => i + 1);*/}
-        {/*    } catch (e) {*/}
-        {/*      alert(e.message);*/}
-        {/*      console.error(e);*/}
-        {/*    } finally {*/}
-        {/*      dispatch({ type: ACTIONS.TX_OFF });*/}
-        {/*    }*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  Add 10Eth to MM Address*/}
-        {/*</Button>*/}
-      </div>
-      <h2>All Addresses</h2>
-      <table className={'dapp address-table'}>
-        {addresses.map((entry) => (
-          <tr>
-            <td>{entry.name}</td>
-            <td>{entry.address}</td>
-            <td>{entry.eth}</td>
-          </tr>
-        ))}
-      </table>
-      <div>
+      <h2>
+        Addresses{' '}
         <Button variant="contained" color="primary" onClick={() => setRefresh((i) => i + 1)}>
           refresh
         </Button>
-      </div>
+      </h2>
+
+      <TableContainer component={Paper}>
+        <Table className={'flights'} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Address</TableCell>
+              <TableCell>type</TableCell>
+              <TableCell align="right">Balance (ETH)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {addresses.map((entry, index) => (
+              <TableRow key={index}>
+                <TableCell component="th" scope="row">
+                  {entry.name}
+                </TableCell>
+                <TableCell>{addressFormatter(entry.address)}</TableCell>
+                <TableCell align="center">{airlineMap ? (airlineMap[entry.address] ? 'isAirline' : '') : ''}</TableCell>
+                <TableCell align="right">{entry.eth}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Container>
   );
 }

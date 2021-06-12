@@ -9,13 +9,20 @@ export const ACTIONS = {
   SET_FLIGHT_SURETY_DATA: 'SET_FLIGHT_SURETY_DATA'
 };
 
-export type ReduxState = { metaMask: MetaMask; tx: boolean; flightSuretyApp: any; flightSuretyData: any };
+export type ReduxState = {
+  metaMask: MetaMask;
+  tx: boolean;
+  flightSuretyApp: any;
+  flightSuretyData: any;
+  airlineMap: any;
+};
 
 const initialState = (): ReduxState => ({
   metaMask: { network: 'not-connected', address: '' },
   tx: false,
   flightSuretyApp: null,
-  flightSuretyData: null
+  flightSuretyData: null,
+  airlineMap: {}
 });
 
 export let store: any;

@@ -24,8 +24,10 @@ async function async_run() {
     await _voteOnAirline();
 
     await printAirlines(flightSuretyApp, flightSuretyData);
+    process.exit(0);
   } catch (e) {
     console.error('async_run', e);
+    process.exit(1);
   } finally {
     console.log('async_run DONE');
   }

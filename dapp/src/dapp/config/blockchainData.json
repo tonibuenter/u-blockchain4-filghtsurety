@@ -1,24 +1,25 @@
 {
 	"providerUrl": "ws://localhost:8545",
 	"addresses": [
-		"0xf175ee27009373f768abe7c2cf71354ce61838d3",
-		"0x3378dd02805382891cb065d0edc1cb23ea6c3f2c",
-		"0xfdaa76c302154246f5683bc2ae07f92c15c7aaeb",
-		"0x9c311e64a552b9a00aae79812bbcf453e0f77256",
-		"0xabc8630b5653c379b469f4fc18a6d5b9c7072b14",
-		"0xef8ff67250ddbe7cfaa10342bf16c864bd7082be",
-		"0x78faaa94a2df3a7dc3f5ad24c26d31516d4ca274",
-		"0x7916b90c64ea6c340140eebd14283f40710a512d",
-		"0xba1ca56670c7b695d60ed5a04fd7825acd7a6e06",
-		"0x7614134f22a82328a061bbd00d5962dbf4fb9f0a"
+		"0x802090001e47f1d75282e6b70babff1ea3737fc3",
+		"0xdc73cf7b80cf42c2c68b66c37debc5820a631a4e",
+		"0x47abbfb89adfb3c6c8a013568e23e20b846abb05",
+		"0x00fb2dd1843c0471536f467e3f3c14c3f1e834e8",
+		"0x6568b1346f5414a73f7eabaf7e6e3f240be46c10",
+		"0x4bacf4d5d1cb17a307d9d8c4e3a805dfd340713a",
+		"0xa2b796d7a531a7283d5963ddee746783bba061ad",
+		"0x46f0f4a12f5b5e8236ac0cfe64e8b3604ebcb188",
+		"0x05da4938f05529f17e188293c7fc98a9d65ca632",
+		"0xc4772ea10728d5090801f017964ec5c721ac0d22"
 	],
-	"defaultAccount": "0xf175ee27009373f768abe7c2cf71354ce61838d3",
+	"metamask": "0x3653Ce393b0f6C10DdfFC7435b7163a3a1Faf208",
+	"defaultAccount": "0x802090001e47f1d75282e6b70babff1ea3737fc3",
 	"appAddress": "...",
 	"dataAddress": "..",
 	"firstAirline": 0,
 	"airlines": [
 		{
-			"address": "0xf175ee27009373f768abe7c2cf71354ce61838d3",
+			"address": "0x802090001e47f1d75282e6b70babff1ea3737fc3",
 			"name": "Swiss Air",
 			"flights": [
 				{
@@ -28,7 +29,7 @@
 			]
 		},
 		{
-			"address": "0x3378dd02805382891cb065d0edc1cb23ea6c3f2c",
+			"address": "0xdc73cf7b80cf42c2c68b66c37debc5820a631a4e",
 			"name": "Lufthansa",
 			"flights": [
 				{
@@ -38,7 +39,7 @@
 			]
 		},
 		{
-			"address": "0xfdaa76c302154246f5683bc2ae07f92c15c7aaeb",
+			"address": "0x47abbfb89adfb3c6c8a013568e23e20b846abb05",
 			"name": "Eurowings",
 			"flights": [
 				{
@@ -48,7 +49,7 @@
 			]
 		},
 		{
-			"address": "0x9c311e64a552b9a00aae79812bbcf453e0f77256",
+			"address": "0x00fb2dd1843c0471536f467e3f3c14c3f1e834e8",
 			"name": "TUI Reise",
 			"flights": [
 				{
@@ -59,9 +60,9 @@
 		}
 	],
 	"oracleAddresses": [
-		"0xef8ff67250ddbe7cfaa10342bf16c864bd7082be",
-		"0x78faaa94a2df3a7dc3f5ad24c26d31516d4ca274",
-		"0x7916b90c64ea6c340140eebd14283f40710a512d"
+		"0x4bacf4d5d1cb17a307d9d8c4e3a805dfd340713a",
+		"0xa2b796d7a531a7283d5963ddee746783bba061ad",
+		"0x46f0f4a12f5b5e8236ac0cfe64e8b3604ebcb188"
 	],
 	"flightStatusCode": {
 		"STATUS_CODE_UNKNOWN": 0,
@@ -71,7 +72,7 @@
 		"STATUS_CODE_LATE_TECHNICAL": 40,
 		"STATUS_CODE_LATE_OTHER": 50
 	},
-	"migratedTimestamp": "Thu Jun 10 2021 21:52:40 GMT+0200 (Central European Summer Time)",
-	"flightSuretyApp_address": "0xA2b01524e4B3D60C221229BF86D34a73f98268E6",
-	"flightSuretyData_address": "0x3F91FE4e4DE330bF99E51ACe2D5D89d840C4F156"
+	"migratedTimestamp": "Sat Jun 12 2021 08:16:31 GMT+0200 (Central European Summer Time)",
+	"flightSuretyApp_address": "0x3176a6B1C19EB3BEbcF8fa127d5DbBc78B4bB8F8",
+	"flightSuretyData_address": "0xCCE267Af6bB54C81b989f140D6e52E9D49Fc1021"
 }

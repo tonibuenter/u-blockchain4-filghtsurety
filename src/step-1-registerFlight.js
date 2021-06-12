@@ -1,6 +1,6 @@
 const { catchResult } = require('./truffle-utils');
 const { initBlockchainData, initConsoleEvents, printAirlines } = require('./common');
-
+const BigNumber = require('bignumber.js');
 async_run();
 
 async function async_run() {
@@ -29,8 +29,17 @@ async function async_run() {
     res = await flightSuretyApp.isFlightRegistered(airline0.address, flight0.flight, flight0.timestamp);
 
     console.log('isFlightRegistered:', res);
+
+    let numberOfFlights = (await flightSuretyData.getNumberOfFlights()).toNumber();
+    for (let i = 0; i < numberOfFlights; i++) {
+      let { airline, flight, timestamp } = await flightSuretyData.getFlightByIndex(i);
+      console.log('airline:', airline, '; flight:', flight, '; timestamp:', timestamp.toNumber());
+    }
+
+    process.exit(0);
   } catch (e) {
     console.error('async_run', e);
+    process.exit(1);
   } finally {
     console.log('async_run DONE');
   }

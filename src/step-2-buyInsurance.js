@@ -50,8 +50,10 @@ async function async_run() {
     let a1 = await web3.eth.getBalance(insureeAddress);
     console.log('buyInsurance balance:', a1);
     console.log('diff:', a0 - a1);
+    process.exit(0);
   } catch (e) {
     console.error('async_run', e);
+    process.exit(1);
   } finally {
     console.log('async_run DONE');
   }
