@@ -83,11 +83,13 @@ contract FlightSuretyApp is Utils {
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
 
-    constructor (address _dataContract) public
+    constructor (address _dataContract, address firstAirline, string memory airlineName) public
     {
         dataContract = payable(_dataContract);
         fsData = FlightSuretyData(payable(dataContract));
         contractOwner = msg.sender;
+        fsData.authorizeCaller(address(this));
+        fsData.registerAirline(firstAirline, airlineName);
     }
 
 
@@ -141,9 +143,11 @@ contract FlightSuretyApp is Utils {
     returns (bool success, uint votes)
     {
         require(dataContract != address(0), 'NO_DATA_CONTRACT_DEFINED');
+        require(!isRegistered(_airlineAddress), 'AIRLINE_ALREADY_REGISTERED');
+        require(_airlineAddress != address(0), 'MISSING_AIRLINE_ADDRESS');
 
         if (!fsData.registrationNeedsVoting() && fsData.numberOfAirlines() > 0) {
-            require(fsData.isRegistered(msg.sender), 'SENDER_NEEDS_TO_BE_REGISTERED_AIRLINE');
+            require(fsData.isFunded(msg.sender), 'SENDER_NEEDS_TO_BE_FUNDED_AIRLINE');
         }
         return fsData.registerAirline(_airlineAddress, _airlineName);
     }
@@ -162,23 +166,15 @@ contract FlightSuretyApp is Utils {
         return fsData.registrationStatus(_address);
     }
 
-
-    function isAirline(address _address) public view requireDataContract returns (bool)
-    {
-        return fsData.isAirline(_address);
-    }
-
     function voteOnAirline
     (
         address _candidateAddress,
-        address _voterAddress,
         uint _vote
     )
     public requireDataContract
     {
-        require(_voterAddress == msg.sender, 'ONLY_SENDER_CAN_VOTE');
-
-        return fsData.voteOnAirline(_candidateAddress, _voterAddress, _vote);
+        require(isRegistered(msg.sender), 'ONLY_REGISTERED_AIRLINE_CAN_VOTE');
+        return fsData.voteOnAirline(_candidateAddress, msg.sender, _vote);
     }
 
 
@@ -279,6 +275,8 @@ contract FlightSuretyApp is Utils {
     payable
     {
         require(!fsData.isInsured(airline, flight, timestamp, msg.sender), 'INSUREE_ALREADY_EXISTS');
+        require(msg.value <= 1 ether, 'MAX_INSURANCE_1_ETHER');
+
         dataContract.transfer(msg.value);
         fsData.registerInsurance(airline, flight, timestamp, msg.sender, msg.value);
     }
@@ -346,7 +344,7 @@ contract FlightSuretyApp is Utils {
     payable
     {
         require(!isOracleRegistered(), "ORACLE_ALREADY_REGISTERED");
-        require(msg.value >= REGISTRATION_FEE, "REGISTRATION_FEE IS_REQUIRED");
+        require(msg.value >= REGISTRATION_FEE, "REGISTRATION_FEE_IS_REQUIRED");
         dataContract.transfer(REGISTRATION_FEE);
 
         uint8[3] memory indexes = generateIndexes(msg.sender);
@@ -372,7 +370,7 @@ contract FlightSuretyApp is Utils {
     external
     returns (uint8[3] memory)
     {
-        require(oracles[msg.sender].isRegistered, "Not_registered_as_an_oracle");
+        require(oracles[msg.sender].isRegistered, "NOT_REGISTERED_AS_AN_ORACLE");
         return oracles[msg.sender].indexes;
     }
 
@@ -392,11 +390,13 @@ contract FlightSuretyApp is Utils {
     )
     external
     {
-        require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
+        require((oracles[msg.sender].indexes[0] == index) ||
+        (oracles[msg.sender].indexes[1] == index) ||
+            (oracles[msg.sender].indexes[2] == index), "INDEX_DOES_NOT_MATCH_ORACLE_REQUEST");
 
 
         bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp));
-        require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
+        require(oracleResponses[key].isOpen, "FLIGHT_KEY_DOES_NO_MATCH");
 
         oracleResponses[key].responses[statusCode].push(msg.sender);
 

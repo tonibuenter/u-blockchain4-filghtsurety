@@ -1,25 +1,45 @@
 {
 	"providerUrl": "ws://localhost:8545",
 	"addresses": [
-		"0x802090001e47f1d75282e6b70babff1ea3737fc3",
-		"0xdc73cf7b80cf42c2c68b66c37debc5820a631a4e",
-		"0x47abbfb89adfb3c6c8a013568e23e20b846abb05",
-		"0x00fb2dd1843c0471536f467e3f3c14c3f1e834e8",
-		"0x6568b1346f5414a73f7eabaf7e6e3f240be46c10",
-		"0x4bacf4d5d1cb17a307d9d8c4e3a805dfd340713a",
-		"0xa2b796d7a531a7283d5963ddee746783bba061ad",
-		"0x46f0f4a12f5b5e8236ac0cfe64e8b3604ebcb188",
-		"0x05da4938f05529f17e188293c7fc98a9d65ca632",
-		"0xc4772ea10728d5090801f017964ec5c721ac0d22"
+		"0x2d93ae87f512d647e71f2046c162c42892f7ff3e",
+		"0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd",
+		"0x5135ca3ccaa5f8b5c875b93873141c4edccc98ff",
+		"0xc02b25edf227aae53766b9628e8c7e18e4dcb056",
+		"0x40d9c5713e1cfa5559c3f2d528cbca5a6143e766",
+		"0xc883f87d6fd119e63c8186c114291c3ed37a2299",
+		"0x3e7969c2b0c882d6247f7f59e520569bdb26a420",
+		"0x6a651b4e72df907d73fa8f42157fdb821e58be65",
+		"0x9daa412a101bfdda61e7e020f71831d5745982be",
+		"0xd5ae149ba87aad3a98aa1da50d2d9a3f5e9acb02",
+		"0x14bdbc02b5d770f2833c540eecb8295c2db9bde8",
+		"0xff3ab58d0d22658e162744e15ed8dc33f4c2b0b8",
+		"0x3d5c5f7b2340dc17d10070d320c9a38374c797b9",
+		"0x9bb04ec6e4ef516ac9c7a821af617fac319908e3",
+		"0xe0f06d058a49ee79199f2f9ea9c9c39fd8db3aa0",
+		"0x27ba22e5595a8678624fbb027a9a9116fef27fe8",
+		"0x215d7ac94aff42737289ce48d68a9a1abf820731",
+		"0x5da175c2477d5a34bfda9363557b9a7c53689b52",
+		"0xf1589dbd33cd454d99063c72ff0e4ae6c86571aa",
+		"0x3d3a6c3b4e02ddec085805195f1a18fa4593fc89",
+		"0x80c03ce064d31105a2992c45af7440efa4caaf41",
+		"0x2601cfec8e4d9534a32260a2ff865422b47500fa",
+		"0xa0b00e69ff5cfe6bd5ce597f713084963a9ef5ec",
+		"0x057f940f5229448bfdff9c63d266b2e83d2fc753",
+		"0xae3d6094f55b5b40f161c8447c1989c927c65574",
+		"0x0da2c2599433248086bb424840973b1bf4a143f0",
+		"0x8deb06c10c648a2bebbdbf3c957e82790d6b78c7",
+		"0x77d2775b7bc7bdd5c7d75dcf17c72900c8f9e4b8",
+		"0x8660b34b7b66e5691315be813cce57948f3b24e9",
+		"0x3661b6fc9490ad5aea8b1491a2a6e95266e73fb6"
 	],
-	"metamask": "0x3653Ce393b0f6C10DdfFC7435b7163a3a1Faf208",
-	"defaultAccount": "0x802090001e47f1d75282e6b70babff1ea3737fc3",
+	"metamask": "0x3661B6fC9490ad5Aea8B1491A2A6E95266E73fB6",
+	"defaultAccount": "0x2d93ae87f512d647e71f2046c162c42892f7ff3e",
 	"appAddress": "...",
 	"dataAddress": "..",
 	"firstAirline": 0,
 	"airlines": [
 		{
-			"address": "0x802090001e47f1d75282e6b70babff1ea3737fc3",
+			"address": "0x2d93ae87f512d647e71f2046c162c42892f7ff3e",
 			"name": "Swiss Air",
 			"flights": [
 				{
@@ -29,40 +49,45 @@
 			]
 		},
 		{
-			"address": "0xdc73cf7b80cf42c2c68b66c37debc5820a631a4e",
+			"address": "0x9d41eb1c1eb9e8bc3724d46668d2aa073051b0cd",
 			"name": "Lufthansa",
 			"flights": [
 				{
 					"flight": "LHA-FA-B",
-					"timestamp": 123
+					"timestamp": 176
 				}
 			]
 		},
 		{
-			"address": "0x47abbfb89adfb3c6c8a013568e23e20b846abb05",
+			"address": "0x5135ca3ccaa5f8b5c875b93873141c4edccc98ff",
 			"name": "Eurowings",
 			"flights": [
 				{
 					"flight": "EW-FA-B",
-					"timestamp": 123
+					"timestamp": 197
 				}
 			]
 		},
 		{
-			"address": "0x00fb2dd1843c0471536f467e3f3c14c3f1e834e8",
+			"address": "0xc02b25edf227aae53766b9628e8c7e18e4dcb056",
 			"name": "TUI Reise",
 			"flights": [
 				{
 					"flight": "TUI-FA-B",
-					"timestamp": 123
+					"timestamp": 201
+				}
+			]
+		},
+		{
+			"address": "0x40d9c5713e1cfa5559c3f2d528cbca5a6143e766",
+			"name": "Quanta",
+			"flights": [
+				{
+					"flight": "QT-Sid-NY-B",
+					"timestamp": 193
 				}
 			]
 		}
-	],
-	"oracleAddresses": [
-		"0x4bacf4d5d1cb17a307d9d8c4e3a805dfd340713a",
-		"0xa2b796d7a531a7283d5963ddee746783bba061ad",
-		"0x46f0f4a12f5b5e8236ac0cfe64e8b3604ebcb188"
 	],
 	"flightStatusCode": {
 		"STATUS_CODE_UNKNOWN": 0,
@@ -72,7 +97,7 @@
 		"STATUS_CODE_LATE_TECHNICAL": 40,
 		"STATUS_CODE_LATE_OTHER": 50
 	},
-	"migratedTimestamp": "Sat Jun 12 2021 08:16:31 GMT+0200 (Central European Summer Time)",
-	"flightSuretyApp_address": "0x3176a6B1C19EB3BEbcF8fa127d5DbBc78B4bB8F8",
-	"flightSuretyData_address": "0xCCE267Af6bB54C81b989f140D6e52E9D49Fc1021"
+	"migratedTimestamp": "Tue Jun 15 2021 18:50:38 GMT+0200 (Central European Summer Time)",
+	"flightSuretyApp_address": "0x32237781Da3cC125A26b89d1bBb458eA764C13AB",
+	"flightSuretyData_address": "0x8a5732caE975CB1485D973d7Ff1744a8A623f57C"
 }

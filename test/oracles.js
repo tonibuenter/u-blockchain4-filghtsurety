@@ -1,29 +1,34 @@
-const { initTest } = require('../config/testConfig.js');
+const { initBlockchainData } = require('../src/common');
 const { catchResult } = require('../src/truffle-utils');
 
 contract('Oracles', async (accounts) => {
-  const TEST_ORACLES_COUNT = 3;
-  var config;
+  const TEST_ORACLES_COUNT = 5;
+  var bd;
+  var web3;
+  var oracleAddresses = [];
   before('setup contract', async () => {
-    config = await Test.Config(accounts);
+    bd = await initBlockchainData();
+    web3 = bd.web3;
 
-    // Watch contract events
-    const STATUS_CODE_UNKNOWN = 0;
-    const STATUS_CODE_ON_TIME = 10;
-    const STATUS_CODE_LATE_AIRLINE = 20;
-    const STATUS_CODE_LATE_WEATHER = 30;
-    const STATUS_CODE_LATE_TECHNICAL = 40;
-    const STATUS_CODE_LATE_OTHER = 50;
+    for (let i = 10; i < bd.addresses.length && i - 10 < TEST_ORACLES_COUNT; i++) {
+      oracleAddresses.push(bd.addresses[i]);
+    }
   });
 
   it('can register oracles', async () => {
     // ARRANGE
-    let fee = await config.flightSuretyApp.REGISTRATION_FEE.call();
+    let fee = await bd.flightSuretyApp.REGISTRATION_FEE.call();
 
     // ACT
-    for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
-      await config.flightSuretyApp.registerOracle({ from: accounts[a], value: fee });
-      let result = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a] });
+    for (let a of oracleAddresses) {
+      let res = await catchResult(() => bd.flightSuretyApp.registerOracle({ from: a, value: fee }));
+      console.log('res:', res);
+      assert.equal(
+        res.startsWith('OK') || 'ORACLE_ALREADY_REGISTERED' === res,
+        true,
+        `Oracle registration not successful with ${a}`
+      );
+      let result = await bd.flightSuretyApp.getMyIndexes.call({ from: a });
       console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
     }
   });
@@ -34,31 +39,30 @@ contract('Oracles', async (accounts) => {
     let timestamp = Math.floor(Date.now() / 1000);
 
     // Submit a request for oracles to get status information for a flight
-    await config.flightSuretyApp.fetchFlightStatus(config.firstAirline, flight, timestamp);
+    await bd.flightSuretyApp.fetchFlightStatus(bd.addresses[0], flight, timestamp);
     // ACT
 
-    // Since the Index assigned to each test account is opaque by design
-    // loop through all the accounts and for each account, all its Indexes (indices?)
-    // and submit a response. The contract will reject a submission if it was
-    // not requested so while sub-optimal, it's a good test of that feature
-    for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
+    for (let a of oracleAddresses) {
       // Get oracle information
-      let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a] });
+      let oracleIndexes = await bd.flightSuretyApp.getMyIndexes.call({ from: a });
       for (let idx = 0; idx < 3; idx++) {
-        try {
-          // Submit a response...it will only be accepted if there is an Index match
-          await config.flightSuretyApp.submitOracleResponse(
+        // Submit a response...it will only be accepted if there is an Index match
+        let res = await catchResult(() =>
+          bd.flightSuretyApp.submitOracleResponse(
             oracleIndexes[idx],
-            config.firstAirline,
+            bd.addresses[0],
             flight,
             timestamp,
-            STATUS_CODE_ON_TIME,
-            { from: accounts[a] }
-          );
-        } catch (e) {
-          // Enable this when debugging
-          console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
-        }
+            bd.flightStatusCode.STATUS_CODE_ON_TIME,
+            { from: a }
+          )
+        );
+        console.log('submitOracleResponse:', res);
+        assert.equal(
+          res.startsWith('OK') || 'INDEX_DOES_NOT_MATCH_ORACLE_REQUEST' === res || 'FLIGHT_KEY_DOES_NO_MATCH' === res,
+          true,
+          'Unexpected answer!'
+        );
       }
     }
   });

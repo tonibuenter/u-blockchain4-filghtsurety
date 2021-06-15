@@ -15,7 +15,7 @@ contract FlightSuretyData is Utils {
     address private contractOwner;                                      // Account used to deploy contract
     address private authorizedContract;
 
-    uint private MINIMAL_FUND = 0.001 ether;
+    uint private MINIMAL_FUND = 10 ether;
 
     // Blocks all state changes throughout the contract if false
 
@@ -30,6 +30,7 @@ contract FlightSuretyData is Utils {
         // 3 funded (10 ether payed)
         // 9 blocked
         uint status;
+        uint deposit;
     }
 
     //
@@ -51,7 +52,7 @@ contract FlightSuretyData is Utils {
         uint ballotSize;
     }
 
-    uint private consensusThreshold = 3;
+    uint private consensusThreshold = 4;
     mapping(uint => address) private airlineList;
     uint private airlineIndex = 0;
     mapping(address => Airline) private airlineData;
@@ -166,12 +167,11 @@ contract FlightSuretyData is Utils {
     external
     returns (bool success, uint votes)
     {
-        require(_airlineAddress != address(0), 'MISSING_AIRLINE_ADDRESS');
-        require(!isRegistered(_airlineAddress), 'AIRLINE_ALREADY_REGISTERED');
+
         votes = 0;
         success = false;
         if (!registrationNeedsVoting()) {
-            airlineData[_airlineAddress] = Airline(_airlineName, 2);
+            airlineData[_airlineAddress] = Airline(_airlineName, 2, 0);
             success = true;
         } else {
             emit Console('register-1', uint(_airlineAddress), 'needs voting');
@@ -189,7 +189,7 @@ contract FlightSuretyData is Utils {
             }
             votingBoxMap[_airlineAddress].ballotSize = counter;
             votes = counter;
-            airlineData[_airlineAddress] = Airline(_airlineName, 1);
+            airlineData[_airlineAddress] = Airline(_airlineName, 1, 0);
             success = true;
         }
         airlineList[airlineIndex] = _airlineAddress;
@@ -202,7 +202,12 @@ contract FlightSuretyData is Utils {
 
     function isRegistered(address airline) public view returns (bool)
     {
-        return airlineData[airline].status > 1;
+        return airlineData[airline].status > 0;
+    }
+
+    function isFunded(address airline) public view returns (bool)
+    {
+        return airlineData[airline].status == 3;
     }
 
     function registrationStatus(
@@ -213,11 +218,6 @@ contract FlightSuretyData is Utils {
     returns (uint)
     {
         return airlineData[_airlineAddress].status;
-    }
-
-    function isAirline(address airline) public view returns (bool)
-    {
-        return airlineData[airline].status > 0;
     }
 
     function numberOfAirlines() public view returns (uint)
@@ -311,7 +311,7 @@ contract FlightSuretyData is Utils {
         uint _vote
     )
     public
-
+    requireAuthorizedCaller
     {
         require(_vote == 1 || _vote == 2, 'VOTE_SHOULD_BE_1_OR_2');
         require(_candidateAddress != address(0), 'EMPTY_CANDIDATE_ADDRESS');
@@ -369,6 +369,7 @@ contract FlightSuretyData is Utils {
         bytes32 flightKey = getFlightKey(_airline, _flight, _timestamp);
         require(flightData[flightKey].airline == address(0), 'FLIGHT_ALREADY_REGISTERED');
         flightData[flightKey].airline = _airline;
+        flightData[flightKey].status = 1;
         flightData[flightKey].timestamp = _timestamp;
         flightData[flightKey].flight = _flight;
         flightKeys.push(flightKey);
@@ -433,6 +434,24 @@ contract FlightSuretyData is Utils {
         return flightData[flightKey].insurances[insuree] != 0;
     }
 
+    function insureeStatus
+    (
+        address airline,
+        string memory flight,
+        uint256 timestamp,
+        address insuree
+    )
+    public
+    view
+    returns (uint status, uint amount)
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        require(flightData[flightKey].status != 0, 'NO_FLIGHT_ENTRY_FOUND');
+        status = flightData[flightKey].status;
+        amount = flightData[flightKey].insurances[insuree];
+        return (status, amount);
+    }
+
     function registerInsurance(
         address airline,
         string memory flight,
@@ -446,6 +465,7 @@ contract FlightSuretyData is Utils {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
         require(flightData[flightKey].airline != address(0), 'FLIGHT_DOES_NO_EXIST');
         flightData[flightKey].insurances[insuree] = amount;
+        flightData[flightKey].totalSum = flightData[flightKey].totalSum.add(amount);
     }
 
 
@@ -462,8 +482,8 @@ contract FlightSuretyData is Utils {
     requireAuthorizedCaller
     {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        require(flightData[flightKey].airline != address(0), 'Flight_does_no_exist');
-        require(flightData[flightKey].status == 1, 'FlightData_wrong_status');
+        require(flightData[flightKey].airline != address(0), 'FLIGHT_DOES_NO_EXIST');
+        require(flightData[flightKey].status == 1, 'FLIGHTDATA_WRONG_STATUS');
         flightData[flightKey].status = 2;
     }
 
@@ -487,7 +507,13 @@ contract FlightSuretyData is Utils {
         require(flightData[flightKey].airline != address(0), 'FLIGHT_DOES_NO_EXIST');
         require(flightData[flightKey].insurances[insuree] > 0, 'INSUREE_DOES_NO_EXIST_OR_PAYOUT_DONE');
         require(flightData[flightKey].status != 2, 'NO_PAYOUT');
-        insuree.transfer(flightData[flightKey].insurances[insuree]);
+
+        uint256 _a = flightData[flightKey].insurances[insuree];
+        uint256 amount = _a.add(_a.div(2));
+
+        flightData[flightKey].insurances[insuree] = 0;
+        flightData[flightKey].totalSum = flightData[flightKey].totalSum.sub(amount);
+        insuree.transfer(amount);
     }
 
     /**
@@ -507,10 +533,12 @@ contract FlightSuretyData is Utils {
         require(airline.status == 2, 'UNKNOWN_STATUS');
         require(msg.value >= MINIMAL_FUND, 'NOT_ENOUGH');
 
-        payable(address(this)).transfer(MINIMAL_FUND);
+        //        payable(address(this)).transfer(MINIMAL_FUND);
+        //        uint amountToReturn = msg.value.sub(MINIMAL_FUND);
+        //        msg.sender.transfer(amountToReturn);
 
-        uint amountToReturn = msg.value.sub(MINIMAL_FUND);
-        msg.sender.transfer(amountToReturn);
+        payable(address(this)).transfer(msg.value);
+        airlineData[msg.sender].deposit = msg.value;
         airlineData[msg.sender].status = 3;
     }
 

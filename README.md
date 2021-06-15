@@ -2,42 +2,63 @@
 
 FlightSurety is a sample application project for Udacity's Blockchain course.
 
-## Install
+## Prepare and Run
 
-This repository contains Smart Contract code in Solidity (using Truffle), tests (also using Truffle), dApp scaffolding (using HTML, CSS and JS) and server app scaffolding.
+Go to the project directory...
 
-To install, download or clone the repo, then:
+###Start ganache-cli with predefined accounts. 
 
-`npm install`
-`truffle compile`
+For metamask use 
+`0x3661B6fC9490ad5Aea8B1491A2A6E95266E73fB6`
 
-## Develop Client
+`./run-ganache-cli-test.sh`
 
-To run truffle tests:
+###Deploy contracts and accounts
 
-`truffle test ./test/flightSurety.js`
-`truffle test ./test/oracles.js`
+`truffle migrate --reset; ./prepare-dapp.sh`
 
-To use the dapp:
+###Init airline and flight data
 
-`truffle migrate`
-`npm run dapp`
+`cd src; node init-airline-and-flights.js`
 
-To view dapp:
-
-`http://localhost:3000`
-
-## Develop Server
+###Start server
 
 `npm run server`
+
+###Start Dapp
+
+`npm run dapp`
+
+will be available on
+
+`http://localhost:8000`
+
+###Run Tests
+
+All
+
+`truffle test`
+
+Sinlge ones
+
+`truffle test ./test/flightSurety.js`
+
 `truffle test ./test/oracles.js`
 
+##Config files
 
-## Start Ganache-Cli
+### Template for addresses, airlines and flights
 
-`ganache-cli --acctKeys ./config/deployment8548.json`
+./config/rootConfig85.json
 
 
+### Addresses generated from `ganache-cli`
+
+./config/deployment8548.json
+
+### Generated addresses, airline and flights data by `2_deploy_contracts.js`
+
+./config/blockchainData.json
 
 ## Resources
 

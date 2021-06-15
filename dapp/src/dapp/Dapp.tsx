@@ -32,7 +32,6 @@ export default function Dapp({ data }: DappMainProps) {
     }
   }));
 
-  const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: any, newValue: any) => {
@@ -52,7 +51,6 @@ export default function Dapp({ data }: DappMainProps) {
           <Tab label="Airlines" {...a11yProps(1)} />
           <Tab label="Buy Insurance" {...a11yProps(2)} />
           <Tab label="Oracle" {...a11yProps(3)} />
-          <Tab label="Item Three" {...a11yProps(4)} />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
@@ -66,9 +64,6 @@ export default function Dapp({ data }: DappMainProps) {
       </TabPanel>
       <TabPanel value={value} index={3}>
         <Oracles />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        Item 4444
       </TabPanel>
     </Container>
   );

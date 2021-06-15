@@ -1,3 +1,7 @@
+# Welcome to FlightSurety
+
+
+
 ## Environment & Versions / Documentation
 
 |Component|Description|
@@ -17,6 +21,10 @@ solidity |https://docs.soliditylang.org/en/v0.6.0/
 payable addresses|https://ethereum.stackexchange.com/questions/64108/whats-the-difference-between-address-and-address-payable
 truffle contract javascript API |https://www.trufflesuite.com/docs/truffle/reference/contract-abstractions|
 
+
+### Project Template
+https://github.com/udacity/FlightSurety
+
 ## Commands
 
 `truffle compile`
@@ -33,46 +41,34 @@ Start test (with debug option)
 truffle test --debug
 `
 
-## Deploy SupplyChain Contract to Rikeby
 
-truffle compile
+### ganache-cli 
 
-truffle migrate --network rinkeby
-
-## Product Image
-
-An additional parameter
-
-```
-curl "https://ipfs.infura.io:5001/api/v0/cat?arg=HASH"
-    -X POST 
-```
-
-```
-curl "https://ipfs.infura.io:5001/api/v0/add?pin=false" 
-    -X POST 
-    -H "Content-Type: multipart/form-data"     
-    -F file=@"tfile.txt"
-```
+A random ganache environment with 30 accounts can be started with
 
 ```
 
-uint8 has 8 bits
-uint160 has 160 bits
-uint and uint256 have 256 bits
-
-address has 20 bytes, that makes - 20 multiply with 8 -160 bits
-
-so address ~ uint160
-
-```
-
-### ganache-cli with key file
-
+ganache-cli \
+--accounts 30 \
+--acctKeys \
+~/_proj/misc/udacity/u-blockchain4-flightsurety/config/deployment8548.json
 
 
 ```
-ganache-cli --acctKeys \
-    ~/_proj/misc/udacity/u-blockchain4-flightsurety/config/deployment8548.json
+
+The stable test environment can be started with:
+```
+./run-ganache-cli-test.sh
 
 ```
+This re-uses the same accounts.
+
+
+#### Fix Address 
+PK
+0x7633c00493dd9f4967cd7c84c040d6cce987f4d14d4dd879eb69f5d664724da1
+Address
+0xE420b6478F867063AC9F02051C65ae5148eAdc6a
+
+
+

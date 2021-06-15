@@ -1,11 +1,12 @@
 const Web3 = require('web3');
 const contract = require('truffle-contract');
+const BigNumber = require('bignumber.js');
 const fsAppJson = require('../build/contracts/FlightSuretyApp.json');
 const fsDataJson = require('../build/contracts/FlightSuretyData.json');
 const { catchResult } = require('./truffle-utils');
 const bd = require('../config/blockchainData.json');
 
-module.exports = { initBlockchainData, initConsoleEvents, initOracleRequest, printAirlines };
+module.exports = { initBlockchainData, initConsoleEvents, initOracleRequest };
 
 async function initBlockchainData() {
   const faApp = contract(fsAppJson);
@@ -27,9 +28,8 @@ async function initBlockchainData() {
   let flightSuretyData = await faData.deployed();
 
   await flightSuretyApp.setDataContract(flightSuretyData.address);
-  await flightSuretyData.authorizeCaller(flightSuretyApp.address);
 
-  return { ...bd, flightSuretyApp, flightSuretyData, web3 };
+  return { ...bd, flightSuretyApp, flightSuretyData, web3, weiMultiple: new BigNumber(10).pow(18) };
 }
 
 function initOracleRequest(flightSuretyApp, callback) {
@@ -57,20 +57,4 @@ function initConsoleEvents(utils, callback) {
     });
   utils.Console().on('data', processEvent);
   utils.Console().on('once', processEvent);
-}
-
-async function printAirlines(flightSuretyApp, flightSuretyData) {
-  console.log('*** _printAirlines -start- ***');
-  for (let airline of bd.airlines) {
-    console.log('***', airline.name, '***');
-    let res = await flightSuretyApp.isRegistered(airline.address);
-    console.log('isRegistered:', res);
-    res = await catchResult(() => flightSuretyApp.registrationStatus(airline.address));
-    console.log('registrationStatus:', res);
-    res = await catchResult(() => flightSuretyData.votingResults(airline.address));
-    console.log('votingResults:', res);
-    res = await catchResult(() => flightSuretyData.getBallotSize(airline.address));
-    console.log('getBallotSize:', res);
-  }
-  console.log('*** _printAirlines -end- ***');
 }

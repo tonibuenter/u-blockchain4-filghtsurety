@@ -4,7 +4,7 @@ import Container from '@material-ui/core/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import { ACTIONS, ReduxState } from '../redux';
 import { Airline } from './types';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { addressFormatter } from './utis';
 
 export default function Airlines() {
@@ -26,7 +26,6 @@ export default function Airlines() {
             try {
               let airline: Airline = await flightSuretyData.getAirlineByIndex(i);
               let voteApproval = await flightSuretyData.votingResultsByIndex(i);
-
               airline = { ...airline, ...voteApproval };
               airlines.push(airline);
               airlineMap[airline.airlineAddress] = airline;
@@ -59,7 +58,7 @@ export default function Airlines() {
             <TableRow>
               <TableCell>Name of </TableCell>
               <TableCell>Address</TableCell>
-              <TableCell align="right">Status</TableCell>
+              <TableCell align="left">Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -69,7 +68,7 @@ export default function Airlines() {
                   {airline.airlineName}
                 </TableCell>
                 <TableCell>{addressFormatter(airline.airlineAddress)}</TableCell>
-                <TableCell align="right">{airline.airlineStatus.toString()}</TableCell>
+                <TableCell align="left">{statusDisplay(airline.airlineStatus.toString())}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -83,4 +82,17 @@ export default function Airlines() {
       </div>
     </Container>
   );
+}
+
+function statusDisplay(status: String) {
+  switch (status) {
+    case '1':
+      return 'Registered (not confirmed)';
+    case '2':
+      return 'Approved (2)';
+    case '3':
+      return 'Approved and Funded (3)';
+    default:
+      return `unkown  ${status}`;
+  }
 }

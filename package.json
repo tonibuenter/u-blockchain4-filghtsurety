@@ -9,7 +9,8 @@
   "license": "MIT",
   "scripts": {
     "test0": "truffle test ./test/flightSurety.js",
-    "test": "truffle test --debug ./test/flightSurety.js",
+    "test": "truffle test",
+    "test-oracles": "truffle test --debug ./test/oracles.js",
     "test-flightSurety": "truffle test --debug test/flightSurety.js",
     "dapp": "./prepare-dapp.sh && cd ./dapp && npm start",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
@@ -36,7 +37,8 @@
     "webpack": "^5.37.0",
     "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.11.2",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "chai": "^4.3.4"
   },
   "dependencies": {
     "bignumber.js": "^9.0.1",

@@ -2,12 +2,12 @@ import React from 'react';
 import { Button, Container } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { ACTIONS, ReduxState } from '../redux';
-import config from './config/blockchainData.json';
+import bd from './config/blockchainData.json';
 import { catchResult } from './utis';
 
-const airlineAddress0 = config.airlines[0].address;
-const flight0 = config.airlines[0].flights[0].flight;
-const timestamp0 = config.airlines[0].flights[0].timestamp;
+const airlineAddress0 = bd.airlines[0].address;
+const flight0 = bd.airlines[0].flights[0].flight;
+const timestamp0 = bd.airlines[0].flights[0].timestamp;
 
 export default function Oracles() {
   const flightSuretyApp = useSelector((state: ReduxState) => state.flightSuretyApp);
@@ -22,7 +22,6 @@ export default function Oracles() {
           color="primary"
           onClick={async () => {
             dispatch({ type: ACTIONS.TX_ON });
-            debugger;
             try {
               let res = await catchResult(() =>
                 flightSuretyApp.fetchFlightStatus(airlineAddress0, flight0, timestamp0, {

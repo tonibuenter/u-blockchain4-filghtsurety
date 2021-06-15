@@ -1,41 +1,41 @@
-const { initTest } = require('../config/testConfig.js');
+const { initBlockchainData, initConsoleEvents } = require('../src/common');
 const { catchResult } = require('../src/truffle-utils');
+const { printAirlines } = require('../src/flight-surety-utils');
 
 contract('Flight Surety Tests', async (addresses) => {
-  var config;
+  var bd;
   var flightSuretyData;
   var flightSuretyApp;
   var firstAirline;
   var secondAirline;
   var airline3;
   var airline4;
+  var web3;
+  var amountWei;
 
   before('setup contract', async () => {
-    config = await initTest(addresses);
+    // config = await initTest(addresses);
 
-    flightSuretyData = config.flightSuretyData;
-    flightSuretyApp = config.flightSuretyApp;
-    firstAirline = config.airlines[0];
-    secondAirline = config.airlines[1];
-    airline3 = config.airlines[2];
-    airline4 = config.airlines[3];
+    bd = await initBlockchainData();
+    flightSuretyApp = bd.flightSuretyApp;
+    flightSuretyData = bd.flightSuretyData;
+    web3 = bd.web3;
+    amountWei = web3.utils.toWei('10', 'ether');
+    initConsoleEvents(flightSuretyData);
+
+    flightSuretyData = bd.flightSuretyData;
+    flightSuretyApp = bd.flightSuretyApp;
+    firstAirline = bd.airlines[0];
+    secondAirline = bd.airlines[1];
+    airline3 = bd.airlines[2];
+    airline4 = bd.airlines[3];
 
     console.log('flightSuretyData.address:', flightSuretyData.address);
     console.log('flightSuretyApp.address:', flightSuretyApp.address);
 
     try {
-      await flightSuretyApp.setDataContract(flightSuretyData.address);
-      await flightSuretyData.authorizeCaller(flightSuretyApp.address);
-
-      let res = await flightSuretyApp.isAirline(firstAirline.address);
-      console.log('flightSuretyApp.isAirline:', res);
-      res = await flightSuretyApp.registerAirline(firstAirline.address, firstAirline.name);
-      console.log('flightSuretyApp.registerAirline; res.tx:', res.tx);
-
       console.log('flightSuretyApp:', flightSuretyApp.address);
-
       await flightSuretyApp.setOperational(true);
-
       console.log('nr of airlines: ', (await flightSuretyData.numberOfAirlines()).toString());
     } catch (e) {
       console.warn('registerAirline: ', e.message);
@@ -57,7 +57,7 @@ contract('Flight Surety Tests', async (addresses) => {
   it(`T-02 (multiparty) can block access to setOperational() for non-Contract Owner account`, async function () {
     let accessDenied = false;
     try {
-      await flightSuretyApp.setOperational(false, { from: config.addresses[5] });
+      await flightSuretyApp.setOperational(false, { from: bd.addresses[5] });
     } catch (e) {
       accessDenied = true;
     }
@@ -88,46 +88,62 @@ contract('Flight Surety Tests', async (addresses) => {
     await flightSuretyApp.setOperational(true);
   });
 
-  it('T-05 (airline) cannot register an Airline using registerAirline()', async () => {
-    // ARRANGE
-
-    // ACT
-
-    let result = await catchResult(() => flightSuretyApp.registerAirline(secondAirline.address, secondAirline.name));
-    console.log('Result: ', result);
-
-    result = await flightSuretyApp.isAirline(secondAirline.address);
-
-    // ASSERT
-    assert.equal(result, true, "Airline should not be able to register another airline if it hasn't provided funding");
+  it('T-05 (airline) fund airline 0', async () => {
+    let res = await flightSuretyData.isFunded(bd.airlines[0].address);
+    assert.equal(res, false, '0 is funded!');
+    res = await catchResult(() =>
+      flightSuretyData.fund({
+        from: bd.airlines[0].address,
+        value: amountWei,
+        gas: 3000000
+      })
+    );
+    res = await flightSuretyData.isFunded(bd.airlines[0].address);
+    assert.equal(res, true, '0 is not funded!');
   });
 
-  it(`T-07 (logic) check airline registration`, async function () {
-    await flightSuretyApp.setOperational(true);
-
-    let res = true;
-    try {
-      res = await flightSuretyApp.isRegistered(secondAirline.address);
-    } catch (e) {
-      console.log(e.message);
-      res = false;
+  it(`T-06 (airlines) register airlines 1,2,3,4`, async function () {
+    let res;
+    for (let i = 1; i < 5; i++) {
+      res = await catchResult(() => flightSuretyApp.registerAirline(bd.airlines[i].address, bd.airlines[i].name), {
+        from: bd.airlines[0].address
+      });
+      console.log('res:', res);
     }
-    assert.equal(res, true, 'Airline already registered!');
+    res = await flightSuretyData.numberOfAirlines();
+    assert.equal(res, 5, 'Unknown number of airlines');
   });
 
-  it('T-08 (airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
-    // ARRANGE
+  it(`T-07 (airline) fund airlines 1,2,3`, async function () {
+    let res;
+    for (let i = 1; i < 4; i++) {
+      res = await catchResult(() => flightSuretyData.fund({ from: bd.airlines[i].address, value: amountWei }));
+      console.log(res);
+    }
+    for (let i = 1; i < 4; i++) {
+      res = await flightSuretyData.isFunded(bd.airlines[i].address);
+      assert.equal(res, true, 'Is not funded! index: ' + i);
+    }
+  });
 
-    // ACT
-    try {
-      await flightSuretyApp.registerAirline(airline3.address, airline3.name, { from: firstAirline.address });
-      await flightSuretyApp.registerAirline(airline4.address, airline4.name, { from: airline3.address });
-      await dumpAirlines(flightSuretyData);
-    } catch (e) {}
-    let result = await flightSuretyData.isAirline(airline4.address);
+  it('T-08 (airline) vote on airline 4', async () => {
+    let red,
+      candidate = bd.airlines[4];
 
-    // ASSERT
-    assert.equal(result, true, "Airline should not be able to register another airline if it hasn't provided funding");
+    let voter1 = bd.airlines[1];
+    let voter2 = bd.airlines[2];
+
+    res = await catchResult(() => flightSuretyApp.voteOnAirline(candidate.address, 1, { from: voter1.address }));
+    console.log('voteOnAirline:', res);
+
+    res = await catchResult(() => flightSuretyApp.voteOnAirline(candidate.address, 1, { from: voter2.address }));
+    console.log('voteOnAirline:', res);
+
+    res = await catchResult(() => flightSuretyData.fund({ from: candidate.address, value: amountWei }));
+    console.log(res);
+
+    res = await flightSuretyData.isFunded(candidate.address);
+    assert.equal(res, true, 'Candidate is not funded! index: ');
   });
 
   it('T-09 (airline) number of airlines', async () => {
@@ -142,10 +158,10 @@ contract('Flight Surety Tests', async (addresses) => {
     }
 
     // ASSERT
-    assert.equal(nrOfAirlines.toString(), '4', 'Nr of airlines');
+    assert.equal(nrOfAirlines.toString(), '5', 'Nr of airlines');
   });
 
-  it('T-10 (airline) consensus threashold', async () => {
+  it('T-10 (airline) consensus threshold and voting', async () => {
     // ARRANGE
     let consensusThreshold = -1;
 
@@ -157,49 +173,61 @@ contract('Flight Surety Tests', async (addresses) => {
     }
 
     // ASSERT
-    assert.equal(consensusThreshold.toString(), '3', 'Consensus Threashold');
+    assert.equal(consensusThreshold.toString(), '4', 'Consensus Threshold');
   });
 
-  it('T-11 (airline) return all airlines', async () => {
-    // ACT
-    await dumpAirlines(flightSuretyData);
+  it('T-11 (customer) register all flights', async () => {
+    let res;
+    for (let airline of bd.airlines) {
+      for (let flight of airline.flights) {
+        res = await catchResult(() =>
+          flightSuretyApp.registerFlight(flight.flight, flight.timestamp, { from: airline.address })
+        );
+        res = await flightSuretyApp.isFlightRegistered(airline.address, flight.flight, flight.timestamp);
+        assert.equal(res, true, 'Could not register flight ' + flight.flight + ' of ' + airline.name);
+      }
+    }
   });
-  it('T-12 (airline) voteOnAirline', async () => {
-    // ACT
 
-    await dumpAirlines(flightSuretyData);
-    let result = await catchResult(() => flightSuretyApp.voteOnAirline(airline4.address, firstAirline.address, 1));
-    console.log('result:', result);
+  it('T-12 (oracle trigger) buy insurance', async () => {
+    let airline0 = bd.airlines[0];
+    let flight0 = bd.airlines[0].flights[0];
+    let insureeAddress = bd.addresses[7];
 
-    result = await catchResult(() =>
-      flightSuretyApp.voteOnAirline(airline4.address, secondAirline.address, 1, { from: secondAirline.address })
+    let res;
+    let amountEth = '0.5';
+    let amountWei = web3.utils.toWei(amountEth, 'ether');
+    res = await catchResult(() =>
+      flightSuretyApp.buyInsurance(airline0.address, flight0.flight, flight0.timestamp, {
+        from: insureeAddress,
+        value: amountWei,
+        gas: 3000000
+      })
     );
-    console.log('result:', result);
 
-    let res = await flightSuretyData.getAirlineByIndex(3);
-    assert.equal('2', res.airlineStatus.toString(), 'Airline4 is not on status 2');
-    await dumpAirlines(flightSuretyData);
+    let isInsured = await flightSuretyData.isInsured(
+      airline0.address,
+      flight0.flight,
+      flight0.timestamp,
+      insureeAddress
+    );
+    assert.equal(isInsured, true, 'Could not buy insurance for: ' + flight0.flight);
+
+    let a0 = await web3.eth.getBalance(insureeAddress);
+    assert.equal(+a0 > 0, true, 'Unexpected amount.');
+  });
+
+  it('T-13 (oracle) trigger Oracle', async () => {
+    const airlineAddress0 = bd.airlines[0].address;
+    const flight0 = bd.airlines[0].flights[0].flight;
+    const timestamp0 = bd.airlines[0].flights[0].timestamp;
+
+    let res = await catchResult(() =>
+      flightSuretyApp.fetchFlightStatus(airlineAddress0, flight0, timestamp0, {
+        from: bd.defaultAccount,
+        gas: 3000000
+      })
+    );
+    assert.equal(res.startsWith('OK'), true, 'fetchFlightStatus not working!');
   });
 });
-
-async function dumpAirlines(flightSuretyData) {
-  let nrOfAirlines = await flightSuretyData.numberOfAirlines();
-  for (let i = 0; i < nrOfAirlines; i++) {
-    try {
-      let airline = await flightSuretyData.getAirlineByIndex(i);
-      let voteApproval = await flightSuretyData.getVotingResults(i);
-      console.log('***');
-      console.log(i, ' Airline name:', airline.name);
-      console.log('Airline status:', airline.status.toString());
-      console.log(
-        'Airline voters-yes-no-open:',
-        voteApproval.voters.toString(),
-        voteApproval.yes.toString(),
-        voteApproval.no.toString(),
-        voteApproval.open.toString()
-      );
-    } catch (e) {
-      console.error(e.message);
-    }
-  }
-}

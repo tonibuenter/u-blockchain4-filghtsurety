@@ -1,18 +1,8 @@
 {
   "providerUrl": "ws://localhost:8545",
   "addresses": [
-    "0xbb86C2893eB509293b8C9C6De50d51C7C0807674",
-    "0x541D39a9f4666eF796283059c24FC784c57B321f",
-    "0x1437081c5bf6a5CB098246e193cF0f91ae42Ee8e",
-    "0x09eA2eC9f1f2125dCbF49FD9ea57323Fddf6792E",
-    "0xb504f188854A4d46592f45036D883340900925E8",
-    "0x4c4765278E12B4aA3Ed1D5F706e26AFD7fe0662d",
-    "0xf32a409ac3f3AbbE191c4F487c082F870ccc327A",
-    "0xd327140cb7cB843860412ac8B6889820E064E4E3",
-    "0x86FD74cD113AFDe019ff6218f11DCc14023E4cA0",
-    "0x14Fb87E8D8Bc588F4950290d458888D5d9A8c617"
   ],
-  "metamask": "0x3653Ce393b0f6C10DdfFC7435b7163a3a1Faf208",
+  "metamask": "0x3661B6fC9490ad5Aea8B1491A2A6E95266E73fB6",
   "defaultAccount": 0,
   "appAddress": "...",
   "dataAddress": "..",
@@ -34,7 +24,7 @@
       "flights": [
         {
           "flight": "LHA-FA-B",
-          "timestamp": 123
+          "timestamp": 176
         }
       ]
     },
@@ -44,7 +34,7 @@
       "flights": [
         {
           "flight": "EW-FA-B",
-          "timestamp": 123
+          "timestamp": 197
         }
       ]
     },
@@ -54,15 +44,20 @@
       "flights": [
         {
           "flight": "TUI-FA-B",
-          "timestamp": 123
+          "timestamp": 201
+        }
+      ]
+    },
+    {
+      "address": 4,
+      "name": "Quanta",
+      "flights": [
+        {
+          "flight": "QT-Sid-NY-B",
+          "timestamp": 193
         }
       ]
     }
-  ],
-  "oracleAddresses": [
-    5,
-    6,
-    7
   ],
   "flightStatusCode": {
     "STATUS_CODE_UNKNOWN": 0,
